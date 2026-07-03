@@ -80,7 +80,8 @@ export async function requireOfficer(request) {
         // them in the access token; otherwise the frontend supplies the
         // display name from the verified ID token and we record sub as proof.
         email: String(payload.email || payload["https://phs-hub/email"] || ""),
-        name: String(payload.name || payload["https://phs-hub/name"] || "")
+        name: String(payload.name || payload["https://phs-hub/name"] || ""),
+        roles: Array.isArray(payload["https://phs-hub/roles"]) ? payload["https://phs-hub/roles"].map(String) : []
       }
     };
   } catch (err) {
@@ -93,6 +94,27 @@ export async function requireOfficer(request) {
 export async function getStore(name) {
   const blobs = await import("@netlify/blobs");
   return blobs.getStore({ name, consistency: "strong" });
+}
+
+// Supervisor detection: an Auth0 roles custom claim OR membership in the
+// SUPERVISOR_EMAILS env var (comma-separated). Either grants the Command tier.
+export function isSupervisor(officer) {
+  if (!officer) return false;
+  const roles = officer.roles || [];
+  if (roles.includes("supervisor") || roles.includes("admin")) return true;
+  const list = (process.env.SUPERVISOR_EMAILS || "")
+    .split(",").map((item) => item.trim().toLowerCase()).filter(Boolean);
+  return Boolean(officer.email && list.includes(officer.email.toLowerCase()));
+}
+
+export async function requireSupervisor(request) {
+  const session = await requireOfficer(request);
+  if (session.enabled && !isSupervisor(session.officer)) {
+    const err = new Error("Supervisor access required.");
+    err.status = 403;
+    throw err;
+  }
+  return session;
 }
 
 export function errorResponse(err) {

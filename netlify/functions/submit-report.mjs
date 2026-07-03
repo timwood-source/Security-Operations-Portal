@@ -32,6 +32,7 @@ function validatePayload(incoming) {
   if (!incoming.dateOfIncident) throw new Error("Missing required field: dateOfIncident");
   if (!incoming.timeOfIncident) throw new Error("Missing required field: timeOfIncident");
   if (!incoming.summary) throw new Error("Missing required field: summary");
+  if (!incoming.roomNumber) throw new Error("Missing required field: roomNumber");
 
   if (incoming.reportType === "daily_activity") {
     if (!incoming.activityType) throw new Error("Missing required field: activityType");

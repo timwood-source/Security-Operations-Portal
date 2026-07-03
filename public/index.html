@@ -13,637 +13,577 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="mode-incident view-dashboard">
+<body class="mode-incident">
 
-  <!-- ============ LOGIN GATE ============ -->
-  <div class="login-gate" id="loginGate" hidden>
-    <div class="login-card">
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6z"/></symbol>
+<symbol id="i-clip" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4a3 3 0 0 1 6 0M9 10h6M9 14h6"/></symbol>
+<symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8m-3 3l3 3m-6 0l2 2"/></symbol>
+<symbol id="i-tool" viewBox="0 0 24 24"><path d="M14 4a5 5 0 0 0-6.5 6.5L4 14l6 6 3.5-3.5A5 5 0 0 0 20 10l-3 1-4-4z"/></symbol>
+<symbol id="i-flag" viewBox="0 0 24 24"><path d="M6 21V4m0 1h12l-3 4 3 4H6"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="2.5"/></symbol>
+<symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/></symbol>
+<symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4 4 0 1 1 .6-8A6 6 0 0 1 19 11a3.5 3.5 0 0 1-1 7z"/></symbol>
+<symbol id="i-gate" viewBox="0 0 24 24"><path d="M4 20V8m16 12V8M4 8l8-4 8 4M8 20v-8m4 8v-8m4 8v-8M4 14h16"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></symbol>
+<symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a12 12 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10m6 10V4m6 16v-7m4 7H4"/></symbol>
+<symbol id="i-mega" viewBox="0 0 24 24"><path d="M4 10v4h3l7 5V5l-7 5H4zM18 9a5 5 0 0 1 0 6"/></symbol>
+<symbol id="i-cam" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l2-3h4l2 3"/><circle cx="12" cy="13" r="3.5"/></symbol>
+<symbol id="i-print" viewBox="0 0 24 24"><path d="M7 8V4h10v4M5 8h14a2 2 0 0 1 2 2v6h-4M7 16H3v-6a2 2 0 0 1 2-2"/><rect x="7" y="14" width="10" height="7"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12l5 5 11-11"/></symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9h-6v-6h-4v6H4z"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5a3 3 0 0 1 3-3h13v18H7a3 3 0 0 0-3 3zM7 2v15"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.3.9-4.5 4.3 1 6.2-5.5-3-5.5 3 1-6.2L3 9.5l6.3-.9z"/></symbol>
+</defs></svg>
+
+<div class="login-gate" id="loginGate" hidden>
+  <div class="login-card">
+    <span class="brand-mark" aria-hidden="true">PHS</span>
+    <h1>Security Hub</h1>
+    <p>Pembroke Hill School Security Operations. Officer sign-in required.</p>
+    <button class="primary" id="loginButton" type="button">Sign in</button>
+    <p class="login-note" id="loginNote" hidden></p>
+  </div>
+</div>
+
+<div class="auth-warning" id="authWarning" hidden>
+  Officer login is not configured yet. The hub is currently open — set the Auth0 environment variables in Netlify to turn on sign-in.
+</div>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#dashboard" aria-label="PHS Security Hub home">
       <span class="brand-mark" aria-hidden="true">PHS</span>
-      <h1>Security Hub</h1>
-      <p>Pembroke Hill School Security Operations. Officer sign-in required.</p>
-      <button class="primary" id="loginButton" type="button">Sign in</button>
-      <p class="login-note" id="loginNote" hidden></p>
+      <span class="brand-text"><strong>Pembroke Hill School</strong><span>Security Operations</span></span>
+    </a>
+
+    <nav class="group-nav" id="groupNav" aria-label="Hub sections"></nav>
+
+    <div class="topbar-tools">
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle night mode" title="Night mode">◐</button>
+      <div class="user-chip" id="userChip" hidden>
+        <span id="userName">Officer</span>
+        <span class="sup-badge" id="supBadge" hidden>SUPV</span>
+        <button id="logoutButton" type="button">Sign out</button>
+      </div>
+      <span class="status-card" id="backendStatus" aria-live="polite"><span class="status-dot pending"></span><span>Checking…</span></span>
     </div>
   </div>
+</div>
 
-  <!-- ============ AUTH-DISABLED WARNING ============ -->
-  <div class="auth-warning" id="authWarning" hidden>
-    Officer login is not configured yet. The hub is currently open — set the Auth0 environment variables in Netlify to turn on sign-in.
+<header class="hero hero-slim">
+  <div class="hero-image" aria-hidden="true"></div>
+  <div class="hero-overlay" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <p class="eyebrow">Security Operations &middot; Ward Parkway &amp; Wornall</p>
+      <h1 id="heroTitle">Dashboard</h1>
+      <p class="subhead" id="heroSub">Today at a glance.</p>
+    </div>
+  </div>
+</header>
+
+<!-- ============ DASHBOARD ============ -->
+<main class="page-shell view-panel" id="view-dashboard">
+  <div id="announceBanners" class="full-span"></div>
+
+  <div class="widget-row two full-span">
+    <section class="panel widget" aria-label="Weather">
+      <h3 class="widget-title"><svg class="ic"><use href="#i-cloud"/></svg> Weather · Kansas City</h3>
+      <div class="widget-body" id="weatherWidget"><span class="widget-loading">Loading…</span></div>
+    </section>
+    <section class="panel widget" aria-label="Keys and equipment out">
+      <h3 class="widget-title"><svg class="ic"><use href="#i-key"/></svg> Keys &amp; equipment out</h3>
+      <div class="widget-body" id="keysWidget"><span class="widget-loading">Loading…</span></div>
+      <a class="widget-link" href="#keys">Key checkout →</a>
+    </section>
   </div>
 
-  <!-- ============ TOP BAR ============ -->
-  <div class="topbar">
-    <div class="topbar-inner">
-      <a class="brand" href="#dashboard" aria-label="PHS Security Hub home">
-        <span class="brand-mark" aria-hidden="true">PHS</span>
-        <span class="brand-text">
-          <strong>Pembroke Hill School</strong>
-          <span>Security Operations</span>
-        </span>
-      </a>
+  <div class="dash-grid full-span">
+    <section class="panel dash-main framed" aria-label="Two week calendar">
+      <div class="dash-head ruled"><h2><svg class="ic"><use href="#i-cal"/></svg> Next 14 days</h2><p class="dash-sub">Home athletics + faculty</p></div>
+      <div id="calendarList" class="calendar-list"><p class="widget-loading">Loading calendar…</p></div>
+    </section>
 
-      <nav class="main-nav" id="mainNav" aria-label="Hub sections">
-        <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="navLinks">Menu</button>
-        <div class="nav-links" id="navLinks">
-          <a href="#dashboard" data-nav="dashboard" class="active">Dashboard</a>
-          <a href="#incident" data-nav="incident"><span class="nav-code">IR-01</span> Incident</a>
-          <a href="#daily" data-nav="daily"><span class="nav-code">DA-02</span> Daily Log</a>
-          <a href="#keys" data-nav="keys"><span class="nav-code">KC-03</span> Keys</a>
-          <a href="#passdown" data-nav="passdown"><span class="nav-code">PD-04</span> Pass-Down</a>
-          <a href="#gates" data-nav="gates">Gates</a>
-          <a href="#postorders" data-nav="postorders">Post Orders</a>
-        </div>
-      </nav>
+    <div class="dash-side">
+      <section class="panel dash-card edge-crimson" aria-label="B.O.L.O.s">
+        <div class="dash-head"><h2><svg class="ic"><use href="#i-eye"/></svg> B.O.L.O.s</h2><a class="widget-link" href="#bolos">All / post →</a></div>
+        <div id="boloDash" class="bolo-list"><p class="widget-loading">Loading…</p></div>
+      </section>
 
-      <div class="topbar-tools">
-        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle night mode" title="Night mode">◐</button>
-        <div class="user-chip" id="userChip" hidden>
-          <span id="userName">Officer</span>
-          <button id="logoutButton" type="button">Sign out</button>
+      <section class="panel dash-card edge-gold" aria-label="Flagged pass-downs">
+        <div class="dash-head"><h2><svg class="ic"><use href="#i-flag"/></svg> Pass-down · last 24h</h2><a class="widget-link" href="#passdown">All →</a></div>
+        <div id="passdownRecent" class="passdown-list compact"><p class="widget-loading">Loading…</p></div>
+      </section>
+
+      <section class="panel dash-card" aria-label="Report lookup">
+        <div class="dash-head"><h2><svg class="ic"><use href="#i-search"/></svg> Report lookup</h2></div>
+        <form id="dashLookupForm" class="lookup-form">
+          <input id="dashLookupInput" type="text" placeholder="PHS-0147 or DAR-0032" autocomplete="off" spellcheck="false" />
+          <button class="primary small" type="submit">Find</button>
+        </form>
+        <p class="helper">Full detail &amp; print: <a href="#lookup">Lookup page →</a></p>
+      </section>
+    </div>
+  </div>
+</main>
+
+<!-- ============ REPORTS (IR-01 / DA-02) ============ -->
+<main class="page-shell view-panel" id="view-reports" hidden>
+  <aside class="panel brief-panel" aria-label="Report guidance">
+    <div class="mode-badge" id="modeBadge">Incident Report</div>
+    <h2 id="sideTitle">Choose an incident report type</h2>
+    <p class="brief-text" id="sideText">Select the best category.</p>
+
+    <div class="progress-rail" id="progressRail" aria-label="Form sections"></div>
+
+    <div class="rapid-card daily-only" hidden>
+      <h3><svg class="ic"><use href="#i-clip"/></svg> Rapid log</h3>
+      <p class="helper">One-line entries for busy posts. Time is stamped automatically; location is remembered.</p>
+      <form id="rapidForm">
+        <div class="grid two tight">
+          <select id="rapidCampus"><option value="">Campus</option></select>
+          <select id="rapidLocation"><option value="">Location</option></select>
         </div>
-        <div class="status-mini" aria-label="Backend status">
-          <span class="status-card" id="backendStatus" aria-live="polite">
-            <span class="status-dot pending"></span>
-            <span>Checking…</span>
-          </span>
+        <div class="chip-row" id="rapidChips"></div>
+        <div class="rapid-line">
+          <input id="rapidText" type="text" placeholder="Quick entry… (Enter to file)" spellcheck="true" autocomplete="off" />
+          <button class="primary small" type="submit">Log</button>
         </div>
+      </form>
+      <ul class="rapid-log" id="rapidLog"></ul>
+    </div>
+
+    <div class="type-feature incident-only" id="typeFeature">
+      <div class="type-feature-icon" id="typeFeatureIcon">IR</div>
+      <div class="type-feature-body">
+        <h3 id="typeFeatureTitle">No type selected</h3>
+        <p id="typeFeatureDescription">Pick a report type to show a short description.</p>
       </div>
     </div>
-  </div>
+  </aside>
 
-  <!-- ============ HERO BAND ============ -->
-  <header class="hero hero-slim">
-    <div class="hero-image" aria-hidden="true"></div>
-    <div class="hero-overlay" aria-hidden="true"></div>
-    <div class="hero-inner">
-      <div class="hero-copy">
-        <p class="eyebrow">Security Operations &middot; Ward Parkway &amp; Wornall</p>
-        <h1 id="heroTitle">Dashboard</h1>
-        <p class="subhead" id="heroSub">Today at a glance: calendar, gates, keys, and advisories.</p>
+  <section class="panel form-panel framed" aria-label="Security reporting form">
+    <div class="form-heading">
+      <div class="form-heading-copy">
+        <p class="form-code">
+          <span class="incident-only">Form IR&#8209;01</span>
+          <span class="daily-only" hidden>Form DA&#8209;02</span>
+          <span class="form-code-org">&middot; PHS Security</span>
+        </p>
+        <h2 id="formTitle">Submit an incident report</h2>
+        <p class="form-intro" id="formIntro">Use this for security, safety, conduct, property, or significant campus incidents.</p>
+      </div>
+      <span class="pill" id="attachmentStatus">No files selected</span>
+    </div>
+
+    <div class="confirm-card" id="confirmCard" hidden>
+      <p class="confirm-label">Report filed</p>
+      <p class="confirm-number stamp" id="confirmNumber">PHS-0000</p>
+      <p class="confirm-meta" id="confirmMeta"></p>
+      <div class="actions tight">
+        <button class="secondary" id="copyNumberButton" type="button">Copy number</button>
+        <button class="primary" id="startAnotherButton" type="button">Start another</button>
       </div>
     </div>
-  </header>
 
-  <!-- ================================================================
-       VIEW: DASHBOARD
-       ================================================================ -->
-  <main class="page-shell view-panel" id="view-dashboard">
+    <form id="reportForm" autocomplete="on">
+      <input type="hidden" id="formMode" name="formMode" value="incident" />
+      <input type="hidden" id="building" name="building" value="" />
 
-    <div class="widget-row" aria-label="Live status widgets">
-      <section class="panel widget" aria-label="Weather">
-        <h3 class="widget-title">Weather · Kansas City</h3>
-        <div class="widget-body" id="weatherWidget"><span class="widget-loading">Loading…</span></div>
-      </section>
+      <section class="form-section" data-step="Classification">
+        <header class="section-head"><h3>Classification</h3><p>What kind of report is this, and who is filing it.</p></header>
 
-      <section class="panel widget" aria-label="Gates scheduled status">
-        <h3 class="widget-title">Gates right now <span class="widget-tag">scheduled</span></h3>
-        <div class="widget-body" id="gatesWidget"><span class="widget-loading">Loading…</span></div>
-        <a class="widget-link" href="#gates">Full gate schedule →</a>
-      </section>
-
-      <section class="panel widget" aria-label="Keys out">
-        <h3 class="widget-title">Keys out</h3>
-        <div class="widget-body" id="keysWidget"><span class="widget-loading">Loading…</span></div>
-        <a class="widget-link" href="#keys">Key checkout →</a>
-      </section>
-    </div>
-
-    <div class="dash-grid">
-      <section class="panel dash-main" aria-label="Two week calendar">
-        <div class="dash-head">
-          <h2>Next 14 days</h2>
-          <p class="dash-sub" id="calendarSourceNote">Home athletics + faculty calendar</p>
+        <div class="field incident-only">
+          <label for="reportType">Report type <span class="required">*</span></label>
+          <select id="reportType" name="reportType"><option value="">Loading report types…</option></select>
+          <p class="helper" id="reportTypeDescription">Select a report type to see a short description.</p>
         </div>
-        <div id="calendarList" class="calendar-list">
-          <p class="widget-loading">Loading calendar…</p>
-        </div>
-      </section>
 
-      <div class="dash-side">
-        <section class="panel dash-card" aria-label="Active advisories">
-          <div class="dash-head">
-            <h2>Active advisories</h2>
-            <button class="secondary small" id="boloToggle" type="button">+ Post advisory</button>
+        <div class="field daily-only" hidden>
+          <label for="activityType">Activity type <span class="required">*</span></label>
+          <select id="activityType" name="activityType"><option value="">Loading daily activity types…</option></select>
+        </div>
+
+        <div class="grid two">
+          <div class="field">
+            <label for="submittedBy">Submitted by <span class="required">*</span></label>
+            <input id="submittedBy" name="submittedBy" type="text" required placeholder="Officer name" />
+            <p class="helper" id="submittedByHelper" hidden>Filled from your sign-in.</p>
           </div>
-
-          <form id="boloForm" class="inline-form" hidden>
-            <div class="grid two">
-              <div class="field">
-                <label for="boloType">Type <span class="required">*</span></label>
-                <select id="boloType" required></select>
-              </div>
-              <div class="field">
-                <label for="boloExpires">Expires <span class="required">*</span></label>
-                <input id="boloExpires" type="date" required />
-              </div>
-            </div>
-            <div class="field">
-              <label for="boloSubject">Subject <span class="required">*</span></label>
-              <input id="boloSubject" type="text" required placeholder="e.g. White pickup circling Wornall lot" />
-            </div>
-            <div class="field">
-              <label for="boloDetails">Details <span class="required">*</span></label>
-              <textarea id="boloDetails" rows="3" required spellcheck="true" placeholder="Description, plate, direction of travel, what officers should do."></textarea>
-            </div>
-            <div class="actions tight">
-              <button class="primary small" type="submit">Post advisory</button>
-              <button class="secondary small" type="button" id="boloCancel">Cancel</button>
-            </div>
-          </form>
-
-          <div id="boloList" class="bolo-list"><p class="widget-loading">Loading…</p></div>
-        </section>
-
-        <section class="panel dash-card" aria-label="Recent pass-down">
-          <div class="dash-head">
-            <h2>Pass-down · last 24h</h2>
-            <a class="widget-link" href="#passdown">All entries →</a>
-          </div>
-          <div id="passdownRecent" class="passdown-list compact"><p class="widget-loading">Loading…</p></div>
-        </section>
-
-        <section class="panel dash-card" aria-label="Report lookup">
-          <div class="dash-head"><h2>Report lookup</h2></div>
-          <form id="lookupForm" class="lookup-form">
-            <input id="lookupInput" type="text" placeholder="PHS-0147 or DAR-0032" autocomplete="off" spellcheck="false" />
-            <button class="primary small" type="submit">Find</button>
-          </form>
-          <div id="lookupResult" class="lookup-result" hidden></div>
-        </section>
-
-        <section class="panel dash-card" aria-label="Emergency contacts">
-          <div class="dash-head"><h2>Quick contacts</h2></div>
-          <ul id="contactsList" class="contacts-list"></ul>
-        </section>
-      </div>
-    </div>
-  </main>
-
-  <!-- ================================================================
-       VIEW: REPORTS (IR-01 / DA-02 share this form)
-       ================================================================ -->
-  <main class="page-shell view-panel" id="view-reports" hidden>
-
-    <aside class="panel brief-panel" aria-label="Report guidance">
-      <div class="mode-badge" id="modeBadge">Incident Report</div>
-      <h2 id="sideTitle">Choose an incident report type</h2>
-      <p class="brief-text" id="sideText">Select the best category. This panel will update with the purpose and required fields.</p>
-
-      <div class="type-feature" id="typeFeature">
-        <div class="type-feature-icon" id="typeFeatureIcon">IR</div>
-        <div class="type-feature-body">
-          <h3 id="typeFeatureTitle">No type selected</h3>
-          <p id="typeFeatureDescription">Pick a report type to show a short description.</p>
-        </div>
-      </div>
-
-      <div class="guidance-card" id="guidanceCard">
-        <h3>Required before submit</h3>
-        <ul id="guidanceList">
-          <li>Report type</li>
-          <li>Priority</li>
-          <li>Date and time of incident</li>
-          <li>Location</li>
-          <li>People involved selection</li>
-          <li>Narrative</li>
-        </ul>
-      </div>
-
-      <div class="quick-actions" aria-label="Field notes">
-        <div class="quick-action">
-          <strong>Numbered reports</strong>
-          <small>Incidents file as PHS-####, daily logs as DAR-####. The number shows on your confirmation.</small>
-        </div>
-        <div class="quick-action">
-          <strong>Attach evidence</strong>
-          <small>Photos, PDFs, documents, and video. 50&nbsp;MB per file — large files upload in the background.</small>
-        </div>
-        <div class="quick-action">
-          <strong>Spellcheck is on</strong>
-          <small>The browser highlights spelling in the narrative as you type.</small>
-        </div>
-      </div>
-    </aside>
-
-    <section class="panel form-panel" aria-label="Security reporting form">
-
-      <div class="form-heading">
-        <div class="form-heading-copy">
-          <p class="form-code">
-            <span class="incident-only">Form IR&#8209;01</span>
-            <span class="daily-only" hidden>Form DA&#8209;02</span>
-            <span class="form-code-org">&middot; PHS Security</span>
-          </p>
-          <h2 id="formTitle">Submit an incident report</h2>
-          <p class="form-intro" id="formIntro">Use this for security, safety, conduct, property, or significant campus incidents.</p>
-        </div>
-        <span class="pill" id="attachmentStatus">No files selected</span>
-      </div>
-
-      <!-- Confirmation screen shown after a successful submit -->
-      <div class="confirm-card" id="confirmCard" hidden>
-        <p class="confirm-label">Report filed</p>
-        <p class="confirm-number" id="confirmNumber">PHS-0000</p>
-        <p class="confirm-meta" id="confirmMeta"></p>
-        <div class="actions tight">
-          <button class="secondary" id="copyNumberButton" type="button">Copy number</button>
-          <button class="primary" id="startAnotherButton" type="button">Start another</button>
-        </div>
-      </div>
-
-      <form id="reportForm" autocomplete="on">
-        <input type="hidden" id="formMode" name="formMode" value="incident" />
-        <input type="hidden" id="building" name="building" value="" />
-
-        <section class="form-section">
-          <header class="section-head">
-            <h3>Classification</h3>
-            <p>What kind of report is this, and who is filing it.</p>
-          </header>
-
           <div class="field incident-only">
-            <label for="reportType">Report type <span class="required">*</span></label>
-            <select id="reportType" name="reportType">
-              <option value="">Loading report types…</option>
+            <label for="priority">Priority <span class="required">*</span></label>
+            <select id="priority" name="priority">
+              <option value="">Select priority</option>
+              <option>Routine</option><option>Medium</option><option>High</option><option>Urgent</option>
             </select>
-            <p class="helper" id="reportTypeDescription">Select a report type to see a short description.</p>
           </div>
+        </div>
+      </section>
 
-          <div class="field daily-only" hidden>
-            <label for="activityType">Activity type <span class="required">*</span></label>
-            <select id="activityType" name="activityType">
-              <option value="">Loading daily activity types…</option>
+      <section class="form-section" data-step="Time &amp; location">
+        <header class="section-head"><h3>Time &amp; location</h3><p>When it happened and exactly where on campus.</p></header>
+
+        <div class="grid two">
+          <div class="field">
+            <label for="dateOfIncident"><span id="dateLabel">Date of incident</span> <span class="required">*</span></label>
+            <input id="dateOfIncident" name="dateOfIncident" type="date" required />
+          </div>
+          <div class="field">
+            <label for="timeOfIncident"><span id="timeLabel">Time of incident</span> <span class="required">*</span></label>
+            <input id="timeOfIncident" name="timeOfIncident" type="time" required />
+          </div>
+        </div>
+
+        <div class="grid three location-grid">
+          <div class="field">
+            <label for="campus">Campus <span class="required">*</span></label>
+            <select id="campus" name="campus" required>
+              <option value="">Select campus</option>
+              <option value="Ward Parkway / Upper Campus">Ward Parkway / Upper Campus</option>
+              <option value="Wornall / Lower Campus">Wornall / Lower Campus</option>
             </select>
-            <p class="helper">Quick officer log for routine security work, patrols, assists, traffic, and event coverage.</p>
           </div>
-
-          <div class="grid two">
-            <div class="field">
-              <label for="submittedBy">Submitted by <span class="required">*</span></label>
-              <input id="submittedBy" name="submittedBy" type="text" required placeholder="Officer name" />
-              <p class="helper" id="submittedByHelper" hidden>Filled from your sign-in.</p>
-            </div>
-
-            <div class="field incident-only">
-              <label for="priority">Priority <span class="required">*</span></label>
-              <select id="priority" name="priority">
-                <option value="">Select priority</option>
-                <option>Routine</option>
-                <option>Medium</option>
-                <option>High</option>
-                <option>Urgent</option>
-              </select>
-            </div>
+          <div class="field">
+            <label for="locationSection">Building or Area <span class="required">*</span></label>
+            <select id="locationSection" name="locationSection" required disabled>
+              <option value="">Select campus first</option>
+            </select>
           </div>
-        </section>
+          <div class="field">
+            <label for="location">Location <span class="required">*</span></label>
+            <select id="location" name="location" required disabled>
+              <option value="">Select building or area first</option>
+            </select>
+          </div>
+        </div>
 
-        <section class="form-section">
-          <header class="section-head">
-            <h3>Time &amp; location</h3>
-            <p>When it happened and exactly where on campus.</p>
-          </header>
-
-          <div class="grid two">
-            <div class="field">
-              <label for="dateOfIncident"><span id="dateLabel">Date of incident</span> <span class="required">*</span></label>
-              <input id="dateOfIncident" name="dateOfIncident" type="date" required />
-            </div>
-
-            <div class="field">
-              <label for="timeOfIncident"><span id="timeLabel">Time of incident</span> <span class="required">*</span></label>
-              <input id="timeOfIncident" name="timeOfIncident" type="time" required />
+        <div class="grid two">
+          <div class="field">
+            <label for="roomNumber">Room number <span class="required">*</span></label>
+            <div class="room-row">
+              <input id="roomNumber" name="roomNumber" type="text" placeholder="e.g. 204" />
+              <label class="check-row inline"><input type="checkbox" id="roomNa" /> <span>N/A</span></label>
             </div>
           </div>
-
-          <div class="grid three location-grid">
-            <div class="field">
-              <label for="campus">Campus <span class="required">*</span></label>
-              <select id="campus" name="campus" required>
-                <option value="">Select campus</option>
-                <option value="Ward Parkway / Upper Campus">Ward Parkway / Upper Campus</option>
-                <option value="Wornall / Lower Campus">Wornall / Lower Campus</option>
-              </select>
-            </div>
-
-            <div class="field">
-              <label for="locationSection">Area group <span class="required">*</span></label>
-              <select id="locationSection" name="locationSection" required disabled>
-                <option value="">Select campus first</option>
-              </select>
-            </div>
-
-            <div class="field">
-              <label for="location">Location <span class="required">*</span></label>
-              <select id="location" name="location" required disabled>
-                <option value="">Select area group first</option>
-              </select>
-            </div>
-          </div>
-
           <div class="field" id="otherLocationWrap" hidden>
             <label for="otherLocation">Other location details <span class="required">*</span></label>
             <input id="otherLocation" name="otherLocation" type="text" placeholder="Describe the specific location" />
           </div>
-        </section>
-
-        <section class="form-section people-card incident-only" aria-label="People involved">
-          <header class="section-head">
-            <h3>People involved <span class="required">*</span></h3>
-            <p>Choose yes or no. If yes, add each person and their role.</p>
-          </header>
-
-          <div class="segmented" role="radiogroup" aria-label="People involved yes or no">
-            <label><input type="radio" name="peopleInvolvedChoice" value="No" /><span>No</span></label>
-            <label><input type="radio" name="peopleInvolvedChoice" value="Yes" /><span>Yes</span></label>
-          </div>
-
-          <div id="peopleEntriesWrap" class="people-entries" hidden>
-            <div id="peopleEntries"></div>
-            <button class="secondary add-person" id="addPersonButton" type="button">+ Add another person</button>
-          </div>
-        </section>
-
-        <section class="form-section">
-          <header class="section-head">
-            <h3>Narrative</h3>
-            <p>Document what happened and how security responded.</p>
-          </header>
-
-          <div class="field">
-            <label for="summary"><span id="summaryLabel">Narrative</span> <span class="required">*</span></label>
-            <textarea id="summary" name="summary" rows="7" required spellcheck="true" placeholder="What happened? Include who, what, when, where, and how security became involved."></textarea>
-            <p class="helper" id="summaryHelper">Spelling errors are highlighted by the browser while typing.</p>
-          </div>
-
-          <div class="field incident-only">
-            <label for="actionTaken">Response / action taken <span class="required">*</span></label>
-            <textarea id="actionTaken" name="actionTaken" rows="5" spellcheck="true" placeholder="What did security, admin, nurse, KCPD, or staff do in response?"></textarea>
-          </div>
-        </section>
-
-        <section class="form-section">
-          <header class="section-head">
-            <h3>Attachments</h3>
-            <p>Photos, PDFs, documents, and media. 50&nbsp;MB per file.</p>
-          </header>
-
-          <fieldset class="fieldset attachment-box">
-            <legend class="sr-only">Supporting files</legend>
-            <div class="upload-zone" id="uploadZone">
-              <input id="attachments" name="attachments" type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.mp4,.mov,.m4v" />
-              <div>
-                <strong>Drop files here or click to choose</strong>
-                <p>No fixed file count cap.</p>
-              </div>
-            </div>
-            <ul class="file-list" id="fileList" aria-live="polite"></ul>
-            <div class="field attachment-note-field">
-              <label for="attachmentNote">Attachment note</label>
-              <textarea id="attachmentNote" name="attachmentNote" rows="3" spellcheck="true" placeholder="Describe what the files show, or note where larger video evidence is stored."></textarea>
-            </div>
-          </fieldset>
-        </section>
-
-        <div class="actions">
-          <button class="primary" id="submitButton" type="submit">Submit Incident Report</button>
-          <button class="secondary" type="reset">Clear form</button>
         </div>
+      </section>
 
-        <div class="result" id="resultBox" aria-live="polite" hidden></div>
-      </form>
-    </section>
-  </main>
-
-  <!-- ================================================================
-       VIEW: KEY CHECKOUT (KC-03)
-       ================================================================ -->
-  <main class="page-shell view-panel" id="view-keys" hidden>
-    <aside class="panel brief-panel" aria-label="Outstanding checkouts">
-      <div class="mode-badge">Outstanding</div>
-      <h2>Keys currently out</h2>
-      <p class="brief-text">Any signed-in officer can record a return. Tap Return when the key comes back.</p>
-      <div id="openKeysList" class="open-keys-list"><p class="widget-loading">Loading…</p></div>
-    </aside>
-
-    <section class="panel form-panel" aria-label="Key checkout form">
-      <div class="form-heading">
-        <div class="form-heading-copy">
-          <p class="form-code">Form KC&#8209;03 <span class="form-code-org">&middot; Vendor Key Checkout</span></p>
-          <h2>Check out a key or keycard</h2>
-          <p class="form-intro">For vendors and contractors working on campus. Every checkout gets a KEY-#### number and stays on the board until it's returned.</p>
+      <section class="form-section people-card incident-only" data-step="People" aria-label="People involved">
+        <header class="section-head"><h3>People involved <span class="required">*</span></h3><p>Choose yes or no. If yes, add each person and their role.</p></header>
+        <div class="segmented" role="radiogroup" aria-label="People involved yes or no">
+          <label><input type="radio" name="peopleInvolvedChoice" value="No" /><span>No</span></label>
+          <label><input type="radio" name="peopleInvolvedChoice" value="Yes" /><span>Yes</span></label>
         </div>
-      </div>
-
-      <div class="confirm-card teal" id="keyConfirmCard" hidden>
-        <p class="confirm-label">Checkout recorded</p>
-        <p class="confirm-number" id="keyConfirmNumber">KEY-0000</p>
-        <p class="confirm-meta" id="keyConfirmMeta"></p>
-        <div class="actions tight">
-          <button class="primary" id="keyStartAnotherButton" type="button">New checkout</button>
+        <div id="peopleEntriesWrap" class="people-entries" hidden>
+          <div id="peopleEntries"></div>
+          <button class="secondary add-person" id="addPersonButton" type="button">+ Add another person</button>
         </div>
-      </div>
+      </section>
 
-      <form id="keyForm">
-        <section class="form-section">
-          <header class="section-head">
-            <h3>Vendor</h3>
-            <p>Who is receiving the key and which company they're with.</p>
-          </header>
-          <div class="grid two">
-            <div class="field">
-              <label for="vendorEmployee">Vendor employee name <span class="required">*</span></label>
-              <input id="vendorEmployee" type="text" required placeholder="Full name" />
-            </div>
-            <div class="field">
-              <label for="vendorCompany">Vendor / company <span class="required">*</span></label>
-              <input id="vendorCompany" type="text" required placeholder="Company name" />
-            </div>
-          </div>
-          <div class="grid two">
-            <div class="field">
-              <label for="badgeIssued">Contractor badge issued <span class="required">*</span></label>
-              <input id="badgeIssued" type="text" required placeholder="Badge number or ID" />
-            </div>
-            <div class="field">
-              <label for="keyName">Key / keycard <span class="required">*</span></label>
-              <select id="keyName" required>
-                <option value="">Loading key list…</option>
-              </select>
-            </div>
-          </div>
-        </section>
-
-        <section class="form-section">
-          <header class="section-head">
-            <h3>Issue</h3>
-            <p>When it went out and who issued it.</p>
-          </header>
-          <div class="grid two">
-            <div class="field">
-              <label for="timeOfIssue">Time of issue <span class="required">*</span></label>
-              <input id="timeOfIssue" type="datetime-local" required />
-            </div>
-            <div class="field">
-              <label for="issuingOfficer">Issuing officer <span class="required">*</span></label>
-              <input id="issuingOfficer" type="text" required placeholder="Officer name" />
-              <p class="helper" id="issuingOfficerHelper" hidden>Filled from your sign-in.</p>
-            </div>
-          </div>
-          <div class="field">
-            <label for="keyRemarks">Remarks</label>
-            <input id="keyRemarks" type="text" placeholder="Work area, escort requirements, expected return, etc." />
-          </div>
-        </section>
-
-        <div class="actions">
-          <button class="primary" id="keySubmitButton" type="submit">Record checkout</button>
-          <button class="secondary" type="reset">Clear</button>
-        </div>
-        <div class="result" id="keyResultBox" aria-live="polite" hidden></div>
-      </form>
-    </section>
-  </main>
-
-  <!-- ================================================================
-       VIEW: PASS-DOWN (PD-04)
-       ================================================================ -->
-  <main class="page-shell view-panel" id="view-passdown" hidden>
-    <aside class="panel brief-panel" aria-label="Recent pass-down entries">
-      <div class="mode-badge">Last 48 hours</div>
-      <h2>Recent entries</h2>
-      <div id="passdownList" class="passdown-list"><p class="widget-loading">Loading…</p></div>
-    </aside>
-
-    <section class="panel form-panel" aria-label="Pass-down entry form">
-      <div class="form-heading">
-        <div class="form-heading-copy">
-          <p class="form-code">Form PD&#8209;04 <span class="form-code-org">&middot; Shift Pass-Down</span></p>
-          <h2>Leave a pass-down entry</h2>
-          <p class="form-intro">What the next shift needs to know. Flag it if it needs eyes-on today.</p>
-        </div>
-      </div>
-
-      <form id="passdownForm">
-        <section class="form-section">
-          <header class="section-head">
-            <h3>Entry</h3>
-            <p>Shift, notes, and an optional related report number.</p>
-          </header>
-          <div class="grid two">
-            <div class="field">
-              <label for="passdownShift">Shift <span class="required">*</span></label>
-              <select id="passdownShift" required>
-                <option value="">Select shift</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="passdownRelated">Related report</label>
-              <input id="passdownRelated" type="text" placeholder="PHS-0147 (optional)" />
-            </div>
-          </div>
-          <div class="field">
-            <label for="passdownNotes">Notes for the next shift <span class="required">*</span></label>
-            <textarea id="passdownNotes" rows="5" required spellcheck="true" placeholder="Ongoing situations, pending returns, doors to watch, follow-ups needed."></textarea>
-          </div>
-          <label class="check-row">
-            <input type="checkbox" id="passdownFlagged" />
-            <span>Flag this entry — needs attention today</span>
-          </label>
-        </section>
-
-        <div class="actions">
-          <button class="primary" id="passdownSubmitButton" type="submit">Save pass-down</button>
-          <button class="secondary" type="reset">Clear</button>
-        </div>
-        <div class="result" id="passdownResultBox" aria-live="polite" hidden></div>
-      </form>
-    </section>
-  </main>
-
-  <!-- ================================================================
-       VIEW: GATES
-       ================================================================ -->
-  <main class="page-shell view-panel single" id="view-gates" hidden>
-    <section class="panel form-panel" aria-label="Gate schedules">
-      <div class="form-heading">
-        <div class="form-heading-copy">
-          <p class="form-code">Gate Access <span class="form-code-org">&middot; PHS Security</span></p>
-          <h2>Gate schedules &amp; scheduled status</h2>
-          <p class="form-intro">Status is computed from the posted schedule — it shows what <em>should</em> be open, not a physical sensor.</p>
-        </div>
-      </div>
-      <div class="sample-banner" id="gatesSampleBanner" hidden>
-        Sample schedule data — replace <code>public/data/gates-schedule.json</code> with the real gate schedules before relying on this page.
-      </div>
-      <div id="gatesContent"><p class="widget-loading">Loading gate schedules…</p></div>
-    </section>
-  </main>
-
-  <!-- ================================================================
-       VIEW: POST ORDERS
-       ================================================================ -->
-  <main class="page-shell view-panel single" id="view-postorders" hidden>
-    <section class="panel form-panel" aria-label="Post orders">
-      <div class="form-heading">
-        <div class="form-heading-copy">
-          <p class="form-code">Post Orders <span class="form-code-org">&middot; PHS Security</span></p>
-          <h2>Post orders &amp; expectations</h2>
-          <p class="form-intro">Standing post orders, event post orders, and department-wide expectations. Documents open as PDFs.</p>
-        </div>
-      </div>
-      <div id="postOrdersContent"><p class="widget-loading">Loading…</p></div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <span>PHS Security Hub</span>
-    <span id="footerNote">Incident reports file as PHS-####. Daily logs file as DAR-####.</span>
-  </footer>
-
-  <template id="personTemplate">
-    <div class="person-entry">
-      <div class="person-entry-title">
-        <strong class="person-number">Person</strong>
-        <button class="remove-person" type="button" aria-label="Remove person">Remove</button>
-      </div>
-      <div class="grid two">
+      <section class="form-section" data-step="Narrative">
+        <header class="section-head"><h3>Narrative</h3><p>Document what happened and how security responded.</p></header>
         <div class="field">
-          <label>Name <span class="required">*</span></label>
-          <input data-person-field="name" type="text" placeholder="Full name" />
+          <label for="summary"><span id="summaryLabel">Narrative</span> <span class="required">*</span></label>
+          <textarea id="summary" name="summary" rows="7" required spellcheck="true" lang="en" placeholder="What happened? Include who, what, when, where, and how security became involved."></textarea>
+          <p class="helper" id="summaryHelper">Spelling is checked by your browser — enable it in browser settings if words aren't underlined.</p>
         </div>
-        <div class="field">
-          <label>Date of birth</label>
-          <input data-person-field="dob" type="date" />
+        <div class="field incident-only">
+          <label for="actionTaken">Response / action taken <span class="required">*</span></label>
+          <textarea id="actionTaken" name="actionTaken" rows="5" spellcheck="true" lang="en" placeholder="What did security, admin, nurse, KCPD, or staff do in response?"></textarea>
         </div>
+      </section>
+
+      <section class="form-section" data-step="Evidence">
+        <header class="section-head"><h3>Attachments</h3><p>Photos, PDFs, documents, and media. 50&nbsp;MB per file.</p></header>
+        <fieldset class="fieldset attachment-box">
+          <legend class="sr-only">Supporting files</legend>
+          <div class="upload-zone" id="uploadZone">
+            <input id="attachments" type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.mp4,.mov,.m4v" />
+            <div><strong>Drop files here or click to choose</strong><p>No fixed file count cap.</p></div>
+          </div>
+          <div class="cam-row">
+            <label class="secondary small cam-button" for="cameraInput"><svg class="ic"><use href="#i-cam"/></svg> Take photo</label>
+            <input id="cameraInput" type="file" accept="image/*" capture="environment" hidden />
+          </div>
+          <ul class="file-list" id="fileList" aria-live="polite"></ul>
+          <div class="upload-progress" id="uploadProgress" hidden><div class="upload-progress-bar" id="uploadProgressBar"></div><span id="uploadProgressText"></span></div>
+          <div class="field attachment-note-field">
+            <label for="attachmentNote">Attachment note</label>
+            <textarea id="attachmentNote" name="attachmentNote" rows="3" spellcheck="true" placeholder="Describe what the files show, or note where larger video evidence is stored."></textarea>
+          </div>
+        </fieldset>
+      </section>
+
+      <div class="stepper-nav" id="stepperNav" hidden>
+        <button class="secondary" id="stepBack" type="button">← Back</button>
+        <span class="step-dots" id="stepDots"></span>
+        <button class="primary" id="stepNext" type="button">Next →</button>
       </div>
-      <div class="grid three">
-        <div class="field">
-          <label>Phone number</label>
-          <input data-person-field="phone" type="tel" placeholder="Phone number if known" />
-        </div>
-        <div class="field">
-          <label>Student? <span class="required">*</span></label>
-          <select data-person-field="student">
-            <option value="">Select</option>
-            <option>Yes</option>
-            <option>No</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Role <span class="required">*</span></label>
-          <select data-person-field="role">
-            <option value="">Select role</option>
-            <option>Witness</option>
-            <option>Victim</option>
-            <option>Person of Interest</option>
-            <option>Other</option>
-          </select>
-        </div>
+
+      <div class="actions" id="formActions">
+        <button class="primary" id="submitButton" type="submit">Submit Incident Report</button>
+        <button class="secondary" type="reset">Clear form</button>
       </div>
+
+      <div class="result" id="resultBox" aria-live="polite" hidden></div>
+    </form>
+  </section>
+</main>
+
+<!-- ============ FOLLOW-UPS ============ -->
+<main class="page-shell view-panel single" id="view-followups" hidden>
+  <section class="panel form-panel framed">
+    <div class="form-heading"><div class="form-heading-copy">
+      <p class="form-code">Follow-Ups <span class="form-code-org">&middot; PHS Security</span></p>
+      <h2>Open reports</h2>
+      <p class="form-intro">Reports not yet closed. Supervisors can close items with a note.</p>
+    </div></div>
+    <div id="followupsList"><p class="widget-loading">Loading…</p></div>
+  </section>
+</main>
+
+<!-- ============ LOOKUP / PRINT ============ -->
+<main class="page-shell view-panel single" id="view-lookup" hidden>
+  <section class="panel form-panel framed">
+    <div class="form-heading"><div class="form-heading-copy">
+      <p class="form-code">Lookup <span class="form-code-org">&middot; PHS Security</span></p>
+      <h2>Find a report by number</h2>
+      <p class="form-intro">Pull up any report by its PHS or DAR number, and print a formatted copy.</p>
+    </div></div>
+    <form id="lookupForm" class="lookup-form big">
+      <input id="lookupInput" type="text" placeholder="PHS-0147" autocomplete="off" spellcheck="false" />
+      <button class="primary" type="submit">Find</button>
+    </form>
+    <div id="lookupResult" class="lookup-result detail" hidden></div>
+  </section>
+</main>
+
+<!-- ============ KEYS (KC-03) & EQUIPMENT (EQ-05) share a template ============ -->
+<main class="page-shell view-panel" id="view-keys" hidden>
+  <aside class="panel brief-panel" aria-label="Outstanding checkouts">
+    <div class="mode-badge">Outstanding</div>
+    <h2 id="coSideTitle">Keys currently out</h2>
+    <p class="brief-text">Any signed-in officer can record a return. Items past <span id="coOverdueHours">12</span> hours show as overdue.</p>
+    <div id="openCheckoutList" class="open-keys-list"><p class="widget-loading">Loading…</p></div>
+  </aside>
+
+  <section class="panel form-panel framed" aria-label="Checkout form">
+    <div class="form-heading"><div class="form-heading-copy">
+      <p class="form-code" id="coFormCode">Form KC&#8209;03 <span class="form-code-org">&middot; Vendor Key Checkout</span></p>
+      <h2 id="coTitle">Check out a key or keycard</h2>
+      <p class="form-intro" id="coIntro">Every checkout gets a number and stays on the board until it's returned.</p>
+    </div></div>
+
+    <div class="confirm-card teal" id="coConfirmCard" hidden>
+      <p class="confirm-label">Checkout recorded</p>
+      <p class="confirm-number stamp" id="coConfirmNumber">KEY-0000</p>
+      <p class="confirm-meta" id="coConfirmMeta"></p>
+      <div class="actions tight"><button class="primary" id="coStartAnotherButton" type="button">New checkout</button></div>
     </div>
-  </template>
 
-  <script src="https://cdn.auth0.com/js/auth0-spa-js/2.1/auth0-spa-js.production.js"></script>
-  <script src="app.js"></script>
+    <form id="checkoutForm">
+      <section class="form-section">
+        <header class="section-head"><h3>Who</h3><p>Person receiving the item and their company or unit.</p></header>
+        <div class="grid two">
+          <div class="field"><label for="vendorEmployee">Name <span class="required">*</span></label><input id="vendorEmployee" type="text" required placeholder="Full name" /></div>
+          <div class="field"><label for="vendorCompany">Company / unit <span class="required">*</span></label><input id="vendorCompany" type="text" required placeholder="Company or department" /></div>
+        </div>
+        <div class="grid two">
+          <div class="field"><label for="badgeIssued" id="badgeLabel">Contractor badge issued <span class="required">*</span></label><input id="badgeIssued" type="text" placeholder="Badge number or ID" /></div>
+          <div class="field"><label for="itemName" id="itemLabel">Key / keycard <span class="required">*</span></label>
+            <input id="itemName" type="text" required list="itemSuggestions" placeholder="Type the key name" autocomplete="off" />
+            <datalist id="itemSuggestions"></datalist>
+          </div>
+        </div>
+      </section>
+      <section class="form-section">
+        <header class="section-head"><h3>Issue</h3><p>When it went out and who issued it.</p></header>
+        <div class="grid two">
+          <div class="field"><label for="timeOfIssue">Time of issue <span class="required">*</span></label><input id="timeOfIssue" type="datetime-local" required /></div>
+          <div class="field"><label for="issuingOfficer">Issuing officer <span class="required">*</span></label><input id="issuingOfficer" type="text" required placeholder="Officer name" /><p class="helper" id="issuingOfficerHelper" hidden>Filled from your sign-in.</p></div>
+        </div>
+        <div class="field"><label for="coRemarks">Remarks</label><input id="coRemarks" type="text" placeholder="Work area, escort requirements, expected return…" /></div>
+      </section>
+      <div class="actions">
+        <button class="primary" id="coSubmitButton" type="submit">Record checkout</button>
+        <button class="secondary" type="reset">Clear</button>
+      </div>
+      <div class="result" id="coResultBox" aria-live="polite" hidden></div>
+    </form>
+  </section>
+</main>
+
+<!-- ============ PASS-DOWN ============ -->
+<main class="page-shell view-panel" id="view-passdown" hidden>
+  <aside class="panel brief-panel" aria-label="Recent pass-down entries">
+    <div class="mode-badge">Last 48 hours</div>
+    <h2>Recent entries</h2>
+    <div id="passdownList" class="passdown-list"><p class="widget-loading">Loading…</p></div>
+  </aside>
+  <section class="panel form-panel framed" aria-label="Pass-down entry form">
+    <div class="form-heading"><div class="form-heading-copy">
+      <p class="form-code">Form PD&#8209;04 <span class="form-code-org">&middot; Shift Pass-Down</span></p>
+      <h2>Leave a pass-down entry</h2>
+      <p class="form-intro">What the next shift needs to know. Flag it if it needs eyes today.</p>
+    </div></div>
+    <form id="passdownForm">
+      <section class="form-section">
+        <div class="grid two">
+          <div class="field"><label for="passdownShift">Shift <span class="required">*</span></label><select id="passdownShift" required><option value="">Select shift</option></select></div>
+          <div class="field"><label for="passdownRelated">Related report</label><input id="passdownRelated" type="text" placeholder="PHS-0147 (optional)" /></div>
+        </div>
+        <div class="field"><label for="passdownNotes">Notes for the next shift <span class="required">*</span></label><textarea id="passdownNotes" rows="5" required spellcheck="true" placeholder="Ongoing situations, pending returns, doors to watch, follow-ups needed."></textarea></div>
+        <label class="check-row"><input type="checkbox" id="passdownFlagged" /><span>Flag this entry — needs attention today</span></label>
+      </section>
+      <div class="actions">
+        <button class="primary" id="passdownSubmitButton" type="submit">Save pass-down</button>
+        <button class="secondary" type="reset">Clear</button>
+      </div>
+      <div class="result" id="passdownResultBox" aria-live="polite" hidden></div>
+    </form>
+  </section>
+</main>
+
+<!-- ============ B.O.L.O.s ============ -->
+<main class="page-shell view-panel single" id="view-bolos" hidden>
+  <section class="panel form-panel framed">
+    <div class="form-heading"><div class="form-heading-copy">
+      <p class="form-code">B.O.L.O.s <span class="form-code-org">&middot; PHS Security</span></p>
+      <h2>Be on the lookout</h2>
+      <p class="form-intro">Watch items for all officers. B.O.L.O.s expire automatically on their end date.</p>
+    </div>
+      <button class="secondary small" id="boloToggle" type="button">+ Post B.O.L.O.</button>
+    </div>
+
+    <form id="boloForm" class="inline-form" hidden>
+      <div class="grid two">
+        <div class="field"><label for="boloType">Type <span class="required">*</span></label><select id="boloType" required></select></div>
+        <div class="field"><label for="boloExpires">Expires <span class="required">*</span></label><input id="boloExpires" type="date" required /></div>
+      </div>
+      <div class="field"><label for="boloSubject">Subject <span class="required">*</span></label><input id="boloSubject" type="text" required placeholder="e.g. White pickup circling Wornall lot" /></div>
+      <div class="field"><label for="boloDetails">Details <span class="required">*</span></label><textarea id="boloDetails" rows="3" required spellcheck="true" placeholder="Description, plate, direction of travel, what officers should do."></textarea></div>
+      <div class="actions tight"><button class="primary small" type="submit">Post B.O.L.O.</button><button class="secondary small" type="button" id="boloCancel">Cancel</button></div>
+    </form>
+
+    <div id="boloList" class="bolo-list"><p class="widget-loading">Loading…</p></div>
+  </section>
+</main>
+
+<!-- ============ GATES ============ -->
+<main class="page-shell view-panel single" id="view-gates" hidden>
+  <section class="panel form-panel framed">
+    <div class="form-heading"><div class="form-heading-copy">
+      <p class="form-code">Gates <span class="form-code-org">&middot; PHS Security</span></p>
+      <h2>Gate schedules &amp; scheduled status</h2>
+      <p class="form-intro">Status is computed from the posted schedule — what <em>should</em> be open, not a physical sensor.</p>
+    </div></div>
+    <div class="sample-banner" id="gatesSampleBanner" hidden>
+      Sample schedule data — replace <code>public/data/gates-schedule.json</code> with the real gate schedules.
+    </div>
+    <div id="gatesContent"><p class="widget-loading">Loading gate schedules…</p></div>
+  </section>
+</main>
+
+<!-- ============ POST ORDERS ============ -->
+<main class="page-shell view-panel single" id="view-postorders" hidden>
+  <section class="panel form-panel framed">
+    <div class="form-heading"><div class="form-heading-copy">
+      <p class="form-code">Post Orders <span class="form-code-org">&middot; PHS Security</span></p>
+      <h2>Post orders &amp; expectations</h2>
+      <p class="form-intro">Standing post orders, event post orders, and department-wide expectations.</p>
+    </div></div>
+    <div id="postOrdersContent"><p class="widget-loading">Loading…</p></div>
+  </section>
+</main>
+
+<!-- ============ CONTACTS ============ -->
+<main class="page-shell view-panel single" id="view-contacts" hidden>
+  <section class="panel form-panel framed">
+    <div class="form-heading"><div class="form-heading-copy">
+      <p class="form-code">Contacts <span class="form-code-org">&middot; PHS Security</span></p>
+      <h2>Quick contacts</h2>
+      <p class="form-intro">Tap a number to call.</p>
+    </div></div>
+    <ul id="contactsList" class="contacts-list big"></ul>
+  </section>
+</main>
+
+<!-- ============ SHIFT COMMAND (supervisors) ============ -->
+<main class="page-shell view-panel single" id="view-command" hidden>
+  <section class="panel form-panel framed">
+    <div class="form-heading"><div class="form-heading-copy">
+      <p class="form-code">Shift Command <span class="form-code-org">&middot; Supervisors</span></p>
+      <h2>Morning picture</h2>
+      <p class="form-intro">Everything a supervisor needs to clear, on one screen.</p>
+    </div>
+      <button class="secondary small" id="annToggle" type="button"><svg class="ic"><use href="#i-mega"/></svg> Post announcement</button>
+    </div>
+
+    <form id="annForm" class="inline-form" hidden>
+      <div class="field"><label for="annMessage">Announcement <span class="required">*</span></label><textarea id="annMessage" rows="2" required spellcheck="true" placeholder="From Security Operations — shown at the top of every officer's dashboard."></textarea></div>
+      <div class="grid two">
+        <div class="field"><label for="annExpires">Expires <span class="required">*</span></label><input id="annExpires" type="date" required /></div>
+        <div class="actions tight" style="align-self:end"><button class="primary small" type="submit">Post</button><button class="secondary small" type="button" id="annCancel">Cancel</button></div>
+      </div>
+    </form>
+
+    <div id="annManageList" class="bolo-list"></div>
+
+    <div class="cmd-grid">
+      <div class="cmd-block edge-gold"><h3><svg class="ic"><use href="#i-flag"/></svg> Flagged pass-downs · 24h</h3><div id="cmdPassdown"></div></div>
+      <div class="cmd-block"><h3><svg class="ic"><use href="#i-file"/></svg> Open follow-ups</h3><div id="cmdFollowups"></div></div>
+      <div class="cmd-block"><h3><svg class="ic"><use href="#i-key"/></svg> Keys &amp; equipment out</h3><div id="cmdCheckouts"></div></div>
+      <div class="cmd-block edge-crimson"><h3><svg class="ic"><use href="#i-eye"/></svg> Active B.O.L.O.s</h3><div id="cmdBolos"></div></div>
+      <div class="cmd-block wide"><h3><svg class="ic"><use href="#i-cal"/></svg> Today's events</h3><div id="cmdToday"></div></div>
+    </div>
+  </section>
+</main>
+
+<!-- ============ WEEKLY STATS (supervisors) ============ -->
+<main class="page-shell view-panel single" id="view-stats" hidden>
+  <section class="panel form-panel framed">
+    <div class="form-heading"><div class="form-heading-copy">
+      <p class="form-code">Stats <span class="form-code-org">&middot; Supervisors</span></p>
+      <h2>Activity — last 8 weeks</h2>
+      <p class="form-intro">Reports, checkouts, and watch items for leadership reporting.</p>
+    </div></div>
+    <div id="statsContent"><p class="widget-loading">Loading…</p></div>
+  </section>
+</main>
+
+<nav class="bottom-bar" id="bottomBar" aria-label="Hub sections"></nav>
+<div class="bottom-sheet" id="bottomSheet" hidden></div>
+
+<div id="printArea" class="print-area" aria-hidden="true"></div>
+
+<footer class="site-footer">
+  <span>PHS Security Hub</span>
+  <span id="footerNote">Incidents file as PHS-#### · Daily logs as DAR-#### · Keys as KEY-#### · Equipment as EQP-####</span>
+</footer>
+
+<template id="personTemplate">
+  <div class="person-entry">
+    <div class="person-entry-title"><strong class="person-number">Person</strong><button class="remove-person" type="button" aria-label="Remove person">Remove</button></div>
+    <div class="grid two">
+      <div class="field"><label>Name <span class="required">*</span></label><input data-person-field="name" type="text" placeholder="Full name" /></div>
+      <div class="field"><label>Date of birth</label><input data-person-field="dob" type="date" /></div>
+    </div>
+    <div class="grid three">
+      <div class="field"><label>Phone number</label><input data-person-field="phone" type="tel" placeholder="Phone if known" /></div>
+      <div class="field"><label>Student? <span class="required">*</span></label><select data-person-field="student"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+      <div class="field"><label>Role <span class="required">*</span></label><select data-person-field="role"><option value="">Select role</option><option>Witness</option><option>Victim</option><option>Person of Interest</option><option>Other</option></select></div>
+    </div>
+  </div>
+</template>
+
+<script src="https://cdn.auth0.com/js/auth0-spa-js/2.1/auth0-spa-js.production.js"></script>
+<script src="app.js"></script>
 </body>
 </html>

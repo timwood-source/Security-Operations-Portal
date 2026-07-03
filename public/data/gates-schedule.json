@@ -1,5 +1,5 @@
 {
-  "_readme": "SAMPLE DATA — replace with the real schedules from the gates dashboard before officers rely on the 'Gates right now' widget. Every gate name below matches the location dropdowns. Windows use 24-hour HH:MM. days: 1=Mon ... 7=Sun. Add extra windows to a gate as needed (e.g. lateStart windows apply only on late-start days, listed in lateStartDates).",
+  "_readme": "SAMPLE DATA \u2014 replace with real schedules and set sample:false. Windows use 24-hour HH:MM; days: 1=Mon..7=Sun. Optional per-window flags: onlyLateStart:true (window applies ONLY on dates in lateStartDates), skipLateStart:true (window is skipped on late-start dates). closedDates lists YYYY-MM-DD no-school days when every gate shows CLOSED.",
   "sample": true,
   "timezone": "America/Chicago",
   "lateStartDates": [],
@@ -7,28 +7,291 @@
     {
       "name": "Ward Parkway / Upper Campus",
       "gates": [
-        { "name": "Boocock Gate", "windows": [ { "days": [1,2,3,4,5], "open": "07:00", "close": "08:30", "label": "AM arrival" }, { "days": [1,2,3,4,5], "open": "14:45", "close": "16:00", "label": "PM dismissal" } ] },
-        { "name": "Jordan Gate", "windows": [ { "days": [1,2,3,4,5], "open": "07:00", "close": "16:00", "label": "School day" } ] },
-        { "name": "Art Gate", "windows": [ { "days": [1,2,3,4,5], "open": "07:15", "close": "08:15", "label": "AM arrival" } ] },
-        { "name": "Referee Gate", "windows": [] },
-        { "name": "Vehicle Gate", "windows": [ { "days": [1,2,3,4,5], "open": "06:30", "close": "17:00", "label": "Operations" } ] },
-        { "name": "Hicks Gate", "windows": [ { "days": [1,2,3,4,5], "open": "15:00", "close": "18:00", "label": "Athletics" } ] },
-        { "name": "Bellis Gate", "windows": [ { "days": [1,2,3,4,5], "open": "05:30", "close": "20:00", "label": "BAC hours" }, { "days": [6,7], "open": "07:00", "close": "14:00", "label": "Weekend BAC" } ] }
+        {
+          "name": "Boocock Gate",
+          "windows": [
+            {
+              "days": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "open": "07:00",
+              "close": "08:30",
+              "label": "AM arrival"
+            },
+            {
+              "days": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "open": "14:45",
+              "close": "16:00",
+              "label": "PM dismissal"
+            }
+          ]
+        },
+        {
+          "name": "Jordan Gate",
+          "windows": [
+            {
+              "days": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "open": "07:00",
+              "close": "16:00",
+              "label": "School day"
+            }
+          ]
+        },
+        {
+          "name": "Art Gate",
+          "windows": [
+            {
+              "days": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "open": "07:15",
+              "close": "08:15",
+              "label": "AM arrival"
+            }
+          ]
+        },
+        {
+          "name": "Referee Gate",
+          "windows": []
+        },
+        {
+          "name": "Vehicle Gate",
+          "windows": [
+            {
+              "days": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "open": "06:30",
+              "close": "17:00",
+              "label": "Operations"
+            }
+          ]
+        },
+        {
+          "name": "Hicks Gate",
+          "windows": [
+            {
+              "days": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "open": "15:00",
+              "close": "18:00",
+              "label": "Athletics"
+            }
+          ]
+        },
+        {
+          "name": "Bellis Gate",
+          "windows": [
+            {
+              "days": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "open": "05:30",
+              "close": "20:00",
+              "label": "BAC hours"
+            },
+            {
+              "days": [
+                6,
+                7
+              ],
+              "open": "07:00",
+              "close": "14:00",
+              "label": "Weekend BAC"
+            }
+          ]
+        }
       ]
     },
     {
       "name": "Wornall / Lower Campus",
       "gates": [
-        { "name": "Turf Field Gate", "windows": [ { "days": [1,2,3,4,5], "open": "15:00", "close": "17:30", "label": "After school" } ] },
-        { "name": "EC Main Gate", "windows": [ { "days": [1,2,3,4,5], "open": "07:15", "close": "09:00", "label": "AM arrival" }, { "days": [1,2,3,4,5], "open": "14:30", "close": "16:00", "label": "PM dismissal" } ] },
-        { "name": "Wornall Main Gate", "windows": [ { "days": [1,2,3,4,5], "open": "06:30", "close": "18:00", "label": "School day" } ] },
-        { "name": "DeRamus Gate", "windows": [ { "days": [1,2,3,4,5], "open": "07:00", "close": "16:00", "label": "School day" } ] },
-        { "name": "Dock Gate", "windows": [ { "days": [1,2,3,4,5], "open": "06:00", "close": "14:00", "label": "Deliveries" } ] },
-        { "name": "Intermediate Gate", "windows": [ { "days": [1,2,3,4,5], "open": "07:15", "close": "08:45", "label": "AM arrival" }, { "days": [1,2,3,4,5], "open": "14:30", "close": "15:45", "label": "PM dismissal" } ] },
-        { "name": "Archives Gate", "windows": [] },
-        { "name": "51st Street Gate", "windows": [ { "days": [1,2,3,4,5], "open": "07:00", "close": "08:30", "label": "AM arrival" } ] },
-        { "name": "EC Side Gate", "windows": [] }
+        {
+          "name": "Turf Field Gate",
+          "windows": [
+            {
+              "days": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "open": "15:00",
+              "close": "17:30",
+              "label": "After school"
+            }
+          ]
+        },
+        {
+          "name": "EC Main Gate",
+          "windows": [
+            {
+              "days": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "open": "07:15",
+              "close": "09:00",
+              "label": "AM arrival"
+            },
+            {
+              "days": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "open": "14:30",
+              "close": "16:00",
+              "label": "PM dismissal"
+            }
+          ]
+        },
+        {
+          "name": "Wornall Main Gate",
+          "windows": [
+            {
+              "days": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "open": "06:30",
+              "close": "18:00",
+              "label": "School day"
+            }
+          ]
+        },
+        {
+          "name": "DeRamus Gate",
+          "windows": [
+            {
+              "days": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "open": "07:00",
+              "close": "16:00",
+              "label": "School day"
+            }
+          ]
+        },
+        {
+          "name": "Dock Gate",
+          "windows": [
+            {
+              "days": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "open": "06:00",
+              "close": "14:00",
+              "label": "Deliveries"
+            }
+          ]
+        },
+        {
+          "name": "Intermediate Gate",
+          "windows": [
+            {
+              "days": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "open": "07:15",
+              "close": "08:45",
+              "label": "AM arrival"
+            },
+            {
+              "days": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "open": "14:30",
+              "close": "15:45",
+              "label": "PM dismissal"
+            }
+          ]
+        },
+        {
+          "name": "Archives Gate",
+          "windows": []
+        },
+        {
+          "name": "51st Street Gate",
+          "windows": [
+            {
+              "days": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "open": "07:00",
+              "close": "08:30",
+              "label": "AM arrival"
+            }
+          ]
+        },
+        {
+          "name": "EC Side Gate",
+          "windows": []
+        }
       ]
     }
-  ]
+  ],
+  "closedDates": []
 }

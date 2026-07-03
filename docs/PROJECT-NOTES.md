@@ -62,6 +62,20 @@ Use this build as the main source for future edits unless a newer working model 
 
 ## Change log
 
+### 2026-07-03 (v4 — "field command" rebuild)
+
+Everything approved in conversation, built in one pass:
+
+**From the issues/requests list:** KC-03 key field is free text with auto-suggest from prior entries (managed key list removed from Code.gs); "Area group" renamed "Building or Area" everywhere; mandatory Room Number field with N/A checkbox on both forms (new trailing column in sheets); "Active advisories" renamed B.O.L.O.s across UI, digest, and empty states; "Gates right now" widget removed from the dashboard (Gates lives in its tab only, now honoring lateStartDates via onlyLateStart/skipLateStart window flags plus new closedDates); spellcheck note clarified in-form (browser setting, lang=en added); dashboard Announcements banner ("From Security Operations") posted/taken down by supervisors.
+
+**From the suggestions list (all approved):** supervisor tier via SUPERVISOR_EMAILS env var or Auth0 roles claim, gating the Command menu, announcements, and follow-up closure; Shift Command page (flagged pass-downs, open follow-ups with inline close, keys+equipment out overdue-first, B.O.L.O.s, today's events, announcement composer); follow-up workflow (open list, close with note → Status=Closed + Resolution column); rapid log strip on DA-02 (remembered location, activity chips, one-line Enter-to-file, instant DAR numbers); weekly stats page (8-week totals, by-week/type/campus CSS bars, checkout volumes); printable report (letterhead print view from Lookup); photo capture (camera input merging into a managed attachment list with per-file remove); equipment checkout EQ-05 (EQP-#### numbers, own sheet, shares the checkout UI).
+
+**Design pass:** grouped navigation (Dashboard / Reports / Operations / Reference / Command) with gold-tab dropdowns on desktop and a bottom tab bar + slide-up sheet on mobile (Command appears as the 5th tab for supervisors); inline SVG icon set; framed panels (gold top rules, section rules, crimson/gold edge cards); motion system (view fade-up, card lift, stamp-in confirmation numbers, count-in metrics, 150–250ms, reduced-motion respected); mobile IR-01 stepper with desktop progress rail; parallel chunked uploads (3 workers, retry ×3) with a real progress bar; overdue checkout tags (threshold CONFIG.OVERDUE_HOURS=12).
+
+**Plumbing:** new Apps Script actions (eqp*, checkoutNames, announce*, listFollowUps, closeFollowUp, statsSummary); new sheets Equipment Checkouts + Announcements; whoami.mjs endpoint; supervisor enforcement server-side in hub-data; calendar-feed now expands RRULE (DAILY/WEEKLY incl. BYDAY/INTERVAL/UNTIL/COUNT) and multi-day all-day events.
+
+**Defaults chosen (flag if wrong):** overdue threshold 12h; Command as a 5th mobile tab; equipment badge field optional (required for keys); announcements default 3-day expiry in composer; monthly/yearly RRULEs fall back to first date only.
+
 ### 2026-07-03 (v3 — Security Hub rebuild)
 
 Planned in conversation notes, built in one pass. Full change list:

@@ -364,3 +364,62 @@ Every file edit above = commit to GitHub → Netlify auto-deploys.
 | Calendar shows one source only | The other feed's URL is wrong/expired — the red note names which one and why. |
 | Big video upload fails | Try once more (chunk uploads resume from scratch per attempt). If it persists, tell me the file size and the exact error text. |
 | Morning digest didn't arrive | Re-run `setup()` (it re-creates the trigger), and check Apps Script → Triggers shows `sendDailySummary` daily 6–7 AM. |
+
+---
+
+# UPGRADING v3 → v4
+
+If you already deployed v3, the v4 upgrade is three steps:
+
+### U1 — Apps Script
+Paste the new `Code.gs` over the old one (same as Step 1.2), **Save**, run
+`setup()` once (creates the Equipment Checkouts and Announcements sheets and
+adds the Room Number / Resolution columns to new Reports Index headers), then
+**Deploy → Manage deployments → ✏️ → New version → Deploy**.
+
+### U2 — Push the v4 code
+Same as Part 2. No files need manual deletion this time — v4 only adds
+function files (`whoami.mjs`) and replaces existing ones.
+
+### U3 — Supervisors
+Add one Netlify environment variable and redeploy:
+
+- `SUPERVISOR_EMAILS` = comma-separated emails of supervisors, e.g.
+  `chief@pembrokehill.org, captain@pembrokehill.org`
+
+Anyone on that list (matched against their verified sign-in email) unlocks
+the **Command** menu: Shift Command, Weekly Stats, posting Announcements,
+and closing Follow-ups. Everyone else sees Command locked. You can change
+the list anytime — env var edit + redeploy, no code changes.
+
+**Optional (recommended later):** for the email match to work, the officer's
+email must be present in their session. With the default Auth0 setup the hub
+already passes it through sign-in; if supervisor detection ever misses, add
+this Auth0 Action (Auth0 dashboard → Actions → Library → Create → "Login /
+Post Login"), paste, deploy, and add it to the Login flow:
+
+```javascript
+exports.onExecutePostLogin = async (event, api) => {
+  api.accessToken.setCustomClaim("https://phs-hub/email", event.user.email);
+  api.accessToken.setCustomClaim("https://phs-hub/name", event.user.name);
+  // Optional role-based alternative to SUPERVISOR_EMAILS:
+  // api.accessToken.setCustomClaim("https://phs-hub/roles", event.authorization?.roles || []);
+};
+```
+
+### v4 verification additions (after U1–U3)
+- Submit a report → the form now requires **Room number** (or N/A checked),
+  and "Building or Area" replaced "Area group".
+- DA-02 page → use the **Rapid log** strip: pick campus/location once, tap a
+  chip, type a line, Enter → a DAR number appears instantly in the list.
+- Phone → IR-01 becomes a step-by-step wizard; **Take photo** opens the camera.
+- Keys page → item name is free text with suggestions; check something out
+  and backdate the issue time 13+ hours → it shows **OVERDUE** on the
+  dashboard widget.
+- Equipment page (EQ-05) → same flow, EQP-#### numbers.
+- Sign in as a supervisor → **Command** unlocks; post an announcement → it
+  appears at the top of every dashboard; take it down from Shift Command.
+- Follow-ups page as supervisor → close a test report with a note → its
+  Status flips to Closed in the Sheet with the note in the Resolution column.
+- Lookup page → find a report → **Print report** produces the letterhead copy.
+- Stats page → totals and bars for the last 8 weeks.

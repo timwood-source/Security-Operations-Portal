@@ -49,20 +49,8 @@ const CONFIG = {
   ID_PREFIX_DAILY: "DAR",
   ID_PREFIX_KEY: "KEY",
 
-  // Managed key / keycard list for vendor checkouts (KC-03).
-  // Edit this list to add or remove keys. No form code changes needed.
-  KEY_LIST: [
-    "Master Key — Ward Parkway",
-    "Master Key — Wornall",
-    "Contractor Keycard 01",
-    "Contractor Keycard 02",
-    "Contractor Keycard 03",
-    "Mechanical Rooms Key",
-    "Elevator Key",
-    "Roof Access Key",
-    "Athletic Facilities Key",
-    "Other (note in remarks)"
-  ],
+  // Checkouts past this many hours show as OVERDUE on the hub.
+  OVERDUE_HOURS: 12,
 
   // BOLO / advisory types for the dashboard board.
   BOLO_TYPES: [
@@ -111,7 +99,8 @@ const MAJOR_REPORT_FIELDS = [
   "attachmentLinks",
   "attachmentNote",
   "signatureReceived",
-  "status"
+  "status",
+  "roomNumber"
 ];
 
 const MAJOR_REPORT_REQUIRED_FIELDS = [
@@ -123,7 +112,8 @@ const MAJOR_REPORT_REQUIRED_FIELDS = [
   "priority",
   "peopleInvolvedChoice",
   "summary",
-  "actionTaken"
+  "actionTaken",
+  "roomNumber"
 ];
 
 function majorReportType_(label, description) {
@@ -168,7 +158,8 @@ const DAILY_ACTIVITY_FIELDS = [
   "attachmentCount",
   "attachmentLinks",
   "attachmentNote",
-  "status"
+  "status",
+  "roomNumber"
 ];
 
 const DAILY_ACTIVITY_REQUIRED_FIELDS = [
@@ -178,7 +169,8 @@ const DAILY_ACTIVITY_REQUIRED_FIELDS = [
   "campus",
   "location",
   "activityType",
-  "summary"
+  "summary",
+  "roomNumber"
 ];
 
 function dailyActivityReportType_() {
@@ -377,7 +369,9 @@ function setup() {
   ensureReportIndex_(ss);
   ensureErrorLog_(ss);
   createSheetsFromConfig_(ss);
-  ensureKeySheet_(ss);
+  ensureCheckoutSheet_(ss, "key");
+  ensureCheckoutSheet_(ss, "equipment");
+  ensureAnnounceSheet_(ss);
   ensurePassdownSheet_(ss);
   ensureBoloSheet_(ss);
   createOrReplaceDailySummaryTrigger_();
@@ -479,7 +473,7 @@ function doGet(e) {
         reportTypes: getPublicReportTypes_(),
         dailyActivityTypes: DAILY_ACTIVITY_TYPES,
         statusOptions: STATUS_OPTIONS,
-        keyList: CONFIG.KEY_LIST,
+        overdueHours: CONFIG.OVERDUE_HOURS,
         boloTypes: CONFIG.BOLO_TYPES,
         shifts: CONFIG.SHIFTS,
         attachmentsEnabled: true,
@@ -534,9 +528,19 @@ function doPost(e) {
 
     if (action) {
       switch (action) {
-        case "keyCheckout":    return jsonResponse_(keyCheckout_(payload));
-        case "keyReturn":      return jsonResponse_(keyReturn_(payload));
-        case "listOpenKeys":   return jsonResponse_(listOpenKeys_());
+        case "keyCheckout":    return jsonResponse_(checkoutSubmit_(payload, "key"));
+        case "keyReturn":      return jsonResponse_(checkoutReturn_(payload, "key"));
+        case "listOpenKeys":   return jsonResponse_(listOpenCheckouts_("key"));
+        case "eqpCheckout":    return jsonResponse_(checkoutSubmit_(payload, "equipment"));
+        case "eqpReturn":      return jsonResponse_(checkoutReturn_(payload, "equipment"));
+        case "listOpenEqp":    return jsonResponse_(listOpenCheckouts_("equipment"));
+        case "checkoutNames":  return jsonResponse_(checkoutNames_());
+        case "announceSubmit": return jsonResponse_(announceSubmit_(payload));
+        case "announceExpire": return jsonResponse_(announceExpire_(payload));
+        case "listAnnouncements": return jsonResponse_(listAnnouncements_());
+        case "listFollowUps":  return jsonResponse_(listFollowUps_());
+        case "closeFollowUp":  return jsonResponse_(closeFollowUp_(payload));
+        case "statsSummary":   return jsonResponse_(statsSummary_(payload));
         case "passdownSubmit": return jsonResponse_(passdownSubmit_(payload));
         case "listPassdown":   return jsonResponse_(listPassdown_(payload));
         case "boloSubmit":     return jsonResponse_(boloSubmit_(payload));
@@ -755,7 +759,9 @@ function writeToReportIndex_(ss, payload, reportId, reportTypeKey, reportType, d
     payload.attachmentLinks || "",
     payload.attachmentNote || "",
     reportType.sheetName,
-    detailRow
+    detailRow,
+    payload.roomNumber || "",
+    ""
   ]);
 }
 
@@ -780,7 +786,9 @@ function ensureReportIndex_(ss) {
     "Attachment Links",
     "Attachment Note",
     "Detail Sheet",
-    "Detail Row"
+    "Detail Row",
+    "Room Number",
+    "Resolution"
   ];
 
   if (!sheet) {
@@ -839,7 +847,13 @@ function sendDailySummary() {
       " (" + item.vendorCompany + "), issued " + item.timeOfIssue + "\n";
   });
 
-  body += "\nACTIVE ADVISORIES: " + activeBolos.count + "\n";
+  const openEqp = listOpenCheckouts_("equipment");
+  body += "\nEQUIPMENT STILL OUT: " + openEqp.count + "\n";
+  openEqp.open.forEach(function(item) {
+    body += "  " + item.checkoutId + " — " + item.keyName + " — " + item.vendorEmployee + "\n";
+  });
+
+  body += "\nACTIVE B.O.L.O.s: " + activeBolos.count + "\n";
 
   activeBolos.active.forEach(function(item) {
     body += "  " + item.type + " — " + item.subject + " (expires " + item.expires + ")\n";
@@ -1012,38 +1026,34 @@ function sendUrgentAlert_(payload, reportId, reportType) {
 
 
 /************************************************************
- * KEY / KEYCARD CHECKOUTS (KC-03)
- * Vendor key checkout with a full lifecycle: issue -> return.
- * Open checkouts are listed on the hub; any logged-in officer
- * can record a return.
+ * KEY & EQUIPMENT CHECKOUTS (KC-03 / EQ-05)
+ * Shared lifecycle: issue -> return. Item names are free text;
+ * the hub offers auto-suggest from previously used names.
  ************************************************************/
 
-const KEY_SHEET_NAME = "Key Checkouts";
+const CHECKOUT_KINDS = {
+  key: { sheet: "Key Checkouts", prefix: "KEY", itemLabel: "Key / Keycard" },
+  equipment: { sheet: "Equipment Checkouts", prefix: "EQP", itemLabel: "Equipment Item" }
+};
 
-const KEY_SHEET_HEADERS = [
-  "Checkout ID",
-  "Status",
-  "Vendor Employee",
-  "Vendor Company",
-  "Contractor Badge",
-  "Key / Keycard",
-  "Time of Issue",
-  "Issuing Officer",
-  "Time of Return",
-  "Returning Officer",
-  "Remarks",
-  "Created"
-];
+function checkoutHeaders_(kind) {
+  return [
+    "Checkout ID", "Status", "Vendor / Person", "Company / Unit", "Contractor Badge",
+    CHECKOUT_KINDS[kind].itemLabel, "Time of Issue", "Issuing Officer",
+    "Time of Return", "Returning Officer", "Remarks", "Created"
+  ];
+}
 
-function ensureKeySheet_(ss) {
-  let sheet = ss.getSheetByName(KEY_SHEET_NAME);
-  if (!sheet) sheet = ss.insertSheet(KEY_SHEET_NAME);
-  setupHeaderRow_(sheet, KEY_SHEET_HEADERS);
+function ensureCheckoutSheet_(ss, kind) {
+  const config = CHECKOUT_KINDS[kind];
+  let sheet = ss.getSheetByName(config.sheet);
+  if (!sheet) sheet = ss.insertSheet(config.sheet);
+  setupHeaderRow_(sheet, checkoutHeaders_(kind));
   return sheet;
 }
 
-function keyCheckout_(payload) {
-  const required = ["vendorEmployee", "vendorCompany", "badgeIssued", "keyName", "timeOfIssue", "issuingOfficer"];
+function checkoutSubmit_(payload, kind) {
+  const required = ["vendorEmployee", "vendorCompany", "keyName", "timeOfIssue", "issuingOfficer"];
   required.forEach(function(field) {
     if (!String(payload[field] || "").trim()) {
       throw new Error("Missing required field: " + field);
@@ -1051,15 +1061,15 @@ function keyCheckout_(payload) {
   });
 
   const ss = getDatabase_();
-  const sheet = ensureKeySheet_(ss);
-  const checkoutId = nextSequentialId_(CONFIG.ID_PREFIX_KEY);
+  const sheet = ensureCheckoutSheet_(ss, kind);
+  const checkoutId = nextSequentialId_(CHECKOUT_KINDS[kind].prefix);
 
   sheet.appendRow([
     checkoutId,
     "OUT",
     String(payload.vendorEmployee).trim(),
     String(payload.vendorCompany).trim(),
-    String(payload.badgeIssued).trim(),
+    String(payload.badgeIssued || "").trim(),
     String(payload.keyName).trim(),
     String(payload.timeOfIssue).trim(),
     String(payload.issuingOfficer).trim(),
@@ -1069,21 +1079,21 @@ function keyCheckout_(payload) {
     new Date()
   ]);
 
-  return { ok: true, checkoutId: checkoutId, message: "Key checkout recorded." };
+  return { ok: true, checkoutId: checkoutId, message: "Checkout recorded." };
 }
 
-function keyReturn_(payload) {
+function checkoutReturn_(payload, kind) {
   const checkoutId = String(payload.checkoutId || "").trim();
   const returningOfficer = String(payload.returningOfficer || "").trim();
   if (!checkoutId) throw new Error("Missing checkoutId.");
   if (!returningOfficer) throw new Error("Missing returningOfficer.");
 
   const ss = getDatabase_();
-  const sheet = ensureKeySheet_(ss);
+  const sheet = ensureCheckoutSheet_(ss, kind);
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) throw new Error("No checkouts on record.");
 
-  const values = sheet.getRange(2, 1, lastRow - 1, KEY_SHEET_HEADERS.length).getValues();
+  const values = sheet.getRange(2, 1, lastRow - 1, 12).getValues();
 
   for (let i = 0; i < values.length; i++) {
     if (String(values[i][0]).trim() === checkoutId) {
@@ -1097,21 +1107,21 @@ function keyReturn_(payload) {
       sheet.getRange(row, 2).setValue("RETURNED");
       sheet.getRange(row, 9).setValue(returnTime);
       sheet.getRange(row, 10).setValue(returningOfficer);
-      return { ok: true, checkoutId: checkoutId, message: "Key marked returned." };
+      return { ok: true, checkoutId: checkoutId, message: "Marked returned." };
     }
   }
 
   throw new Error("Checkout not found: " + checkoutId);
 }
 
-function listOpenKeys_() {
+function listOpenCheckouts_(kind) {
   const ss = getDatabase_();
-  const sheet = ensureKeySheet_(ss);
+  const sheet = ensureCheckoutSheet_(ss, kind);
   const lastRow = sheet.getLastRow();
   const open = [];
 
   if (lastRow >= 2) {
-    const values = sheet.getRange(2, 1, lastRow - 1, KEY_SHEET_HEADERS.length).getValues();
+    const values = sheet.getRange(2, 1, lastRow - 1, 12).getValues();
     values.forEach(function(row) {
       if (String(row[1]).trim() === "OUT") {
         open.push({
@@ -1122,13 +1132,238 @@ function listOpenKeys_() {
           keyName: String(row[5]),
           timeOfIssue: String(row[6]),
           issuingOfficer: String(row[7]),
-          remarks: String(row[10] || "")
+          remarks: String(row[10] || ""),
+          created: row[11] instanceof Date ? row[11].toISOString() : String(row[11] || "")
         });
       }
     });
   }
 
-  return { ok: true, open: open, count: open.length };
+  return { ok: true, open: open, count: open.length, overdueHours: CONFIG.OVERDUE_HOURS };
+}
+
+// Distinct item names previously used, newest first — powers auto-suggest.
+function checkoutNames_() {
+  const ss = getDatabase_();
+  const result = {};
+  Object.keys(CHECKOUT_KINDS).forEach(function(kind) {
+    const sheet = ensureCheckoutSheet_(ss, kind);
+    const lastRow = sheet.getLastRow();
+    const seen = {};
+    const names = [];
+    if (lastRow >= 2) {
+      const values = sheet.getRange(2, 6, lastRow - 1, 1).getValues();
+      for (let i = values.length - 1; i >= 0 && names.length < 30; i--) {
+        const name = String(values[i][0] || "").trim();
+        if (name && !seen[name.toLowerCase()]) {
+          seen[name.toLowerCase()] = true;
+          names.push(name);
+        }
+      }
+    }
+    result[kind] = names;
+  });
+  return { ok: true, keys: result.key, equipment: result.equipment };
+}
+
+// Back-compat aliases used by tests.
+function keyCheckout_(payload) { return checkoutSubmit_(payload, "key"); }
+function keyReturn_(payload) { return checkoutReturn_(payload, "key"); }
+function listOpenKeys_() { return listOpenCheckouts_("key"); }
+
+
+/************************************************************
+ * ANNOUNCEMENTS — From Security Operations (supervisor-posted)
+ ************************************************************/
+
+const ANNOUNCE_SHEET_NAME = "Announcements";
+
+const ANNOUNCE_SHEET_HEADERS = [
+  "Announcement ID", "Status", "Message", "Posted By", "Posted", "Expires", "Removed By", "Removed"
+];
+
+function ensureAnnounceSheet_(ss) {
+  let sheet = ss.getSheetByName(ANNOUNCE_SHEET_NAME);
+  if (!sheet) sheet = ss.insertSheet(ANNOUNCE_SHEET_NAME);
+  setupHeaderRow_(sheet, ANNOUNCE_SHEET_HEADERS);
+  return sheet;
+}
+
+function announceSubmit_(payload) {
+  const message = String(payload.message || "").trim();
+  const postedBy = String(payload.postedBy || "").trim();
+  const expires = String(payload.expires || "").trim();
+  if (!message) throw new Error("Missing required field: message");
+  if (!postedBy) throw new Error("Missing required field: postedBy");
+  if (!expires) throw new Error("Missing required field: expires");
+
+  const ss = getDatabase_();
+  const sheet = ensureAnnounceSheet_(ss);
+  const announcementId = "ANN-" + Utilities.formatDate(new Date(), CONFIG.TIME_ZONE, "yyyyMMdd-HHmmss");
+
+  sheet.appendRow([announcementId, "ACTIVE", message, postedBy, new Date(), expires, "", ""]);
+
+  return { ok: true, announcementId: announcementId, message: "Announcement posted." };
+}
+
+function announceExpire_(payload) {
+  const announcementId = String(payload.announcementId || "").trim();
+  const removedBy = String(payload.removedBy || "").trim();
+  if (!announcementId) throw new Error("Missing announcementId.");
+  if (!removedBy) throw new Error("Missing removedBy.");
+
+  const ss = getDatabase_();
+  const sheet = ensureAnnounceSheet_(ss);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) throw new Error("No announcements on record.");
+
+  const values = sheet.getRange(2, 1, lastRow - 1, ANNOUNCE_SHEET_HEADERS.length).getValues();
+  for (let i = 0; i < values.length; i++) {
+    if (String(values[i][0]).trim() === announcementId) {
+      const row = i + 2;
+      sheet.getRange(row, 2).setValue("REMOVED");
+      sheet.getRange(row, 7).setValue(removedBy);
+      sheet.getRange(row, 8).setValue(new Date());
+      return { ok: true, announcementId: announcementId, message: "Announcement removed." };
+    }
+  }
+  throw new Error("Announcement not found: " + announcementId);
+}
+
+function listAnnouncements_() {
+  const ss = getDatabase_();
+  const sheet = ensureAnnounceSheet_(ss);
+  const lastRow = sheet.getLastRow();
+  const active = [];
+  const now = new Date();
+
+  if (lastRow >= 2) {
+    const values = sheet.getRange(2, 1, lastRow - 1, ANNOUNCE_SHEET_HEADERS.length).getValues();
+    values.forEach(function(row) {
+      if (String(row[1]).trim() !== "ACTIVE") return;
+      const expiresRaw = row[5];
+      if (expiresRaw) {
+        const expires = expiresRaw instanceof Date ? expiresRaw : new Date(String(expiresRaw) + "T23:59:59");
+        if (!isNaN(expires.getTime()) && expires < now) return;
+      }
+      active.push({
+        announcementId: String(row[0]),
+        message: String(row[2]),
+        postedBy: String(row[3]),
+        posted: row[4] instanceof Date ? row[4].toISOString() : String(row[4]),
+        expires: expiresRaw instanceof Date
+          ? Utilities.formatDate(expiresRaw, CONFIG.TIME_ZONE, "yyyy-MM-dd")
+          : String(expiresRaw || "")
+      });
+    });
+  }
+
+  return { ok: true, active: active, count: active.length };
+}
+
+
+/************************************************************
+ * FOLLOW-UP WORKFLOW & WEEKLY STATS
+ ************************************************************/
+
+function listFollowUps_() {
+  const ss = getDatabase_();
+  const sheet = ss.getSheetByName("Reports Index");
+  const openItems = [];
+
+  if (sheet && sheet.getLastRow() >= 2) {
+    const values = sheet.getRange(2, 1, sheet.getLastRow() - 1, 18).getValues();
+    for (let i = values.length - 1; i >= 0 && openItems.length < 40; i--) {
+      const status = String(values[i][12] || "").trim();
+      if (status === "Closed" || status === "Resolved") continue;
+      openItems.push({
+        reportId: String(values[i][0]),
+        timestamp: values[i][1] instanceof Date ? values[i][1].toISOString() : String(values[i][1]),
+        reportType: String(values[i][3]),
+        campus: String(values[i][4]),
+        location: String(values[i][7]),
+        submittedBy: String(values[i][8]),
+        priority: String(values[i][9]),
+        narrative: String(values[i][10]).slice(0, 200),
+        status: status || "New"
+      });
+    }
+  }
+
+  return { ok: true, open: openItems, count: openItems.length };
+}
+
+function closeFollowUp_(payload) {
+  const reportId = String(payload.reportId || "").trim().toUpperCase();
+  const closedBy = String(payload.closedBy || "").trim();
+  const note = String(payload.note || "").trim();
+  if (!reportId) throw new Error("Missing reportId.");
+  if (!closedBy) throw new Error("Missing closedBy.");
+
+  const ss = getDatabase_();
+  const sheet = ss.getSheetByName("Reports Index");
+  if (!sheet || sheet.getLastRow() < 2) throw new Error("No reports on record.");
+
+  const values = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues();
+  for (let i = values.length - 1; i >= 0; i--) {
+    if (String(values[i][0]).trim().toUpperCase() === reportId) {
+      const row = i + 2;
+      const stamp = Utilities.formatDate(new Date(), CONFIG.TIME_ZONE, "yyyy-MM-dd HH:mm");
+      sheet.getRange(row, 13).setValue("Closed");
+      sheet.getRange(row, 20).setValue("Closed by " + closedBy + " " + stamp + (note ? " — " + note : ""));
+      return { ok: true, reportId: reportId, message: "Marked closed." };
+    }
+  }
+  throw new Error("Report not found: " + reportId);
+}
+
+function statsSummary_(payload) {
+  const weeks = Math.min(Number(payload.weeks || 8) || 8, 26);
+  const cutoff = new Date(Date.now() - weeks * 7 * 24 * 60 * 60 * 1000);
+  const ss = getDatabase_();
+
+  const byWeek = {};
+  const byType = {};
+  const byCampus = {};
+  let total = 0;
+
+  const index = ss.getSheetByName("Reports Index");
+  if (index && index.getLastRow() >= 2) {
+    const values = index.getRange(2, 1, index.getLastRow() - 1, 10).getValues();
+    values.forEach(function(row) {
+      const ts = row[1] instanceof Date ? row[1] : new Date(row[1]);
+      if (!ts || isNaN(ts.getTime()) || ts < cutoff) return;
+      total++;
+      const week = Utilities.formatDate(ts, CONFIG.TIME_ZONE, "YYYY-'W'ww");
+      byWeek[week] = (byWeek[week] || 0) + 1;
+      const type = String(row[3] || "Unknown");
+      byType[type] = (byType[type] || 0) + 1;
+      const campus = String(row[4] || "Unknown").split("/")[0].trim();
+      byCampus[campus] = (byCampus[campus] || 0) + 1;
+    });
+  }
+
+  function countSince_(kind) {
+    const sheet = ensureCheckoutSheet_(ss, kind);
+    if (sheet.getLastRow() < 2) return 0;
+    const values = sheet.getRange(2, 12, sheet.getLastRow() - 1, 1).getValues();
+    return values.filter(function(row) {
+      const ts = row[0] instanceof Date ? row[0] : new Date(row[0]);
+      return ts && !isNaN(ts.getTime()) && ts >= cutoff;
+    }).length;
+  }
+
+  return {
+    ok: true,
+    weeks: weeks,
+    totalReports: total,
+    byWeek: byWeek,
+    byType: byType,
+    byCampus: byCampus,
+    keyCheckouts: countSince_("key"),
+    equipmentCheckouts: countSince_("equipment"),
+    activeBolos: listBolos_().count
+  };
 }
 
 
@@ -1667,7 +1902,7 @@ function testKeyCheckoutFlow() {
     vendorEmployee: "Test Vendor Tech",
     vendorCompany: "Test HVAC Co",
     badgeIssued: "C-17",
-    keyName: CONFIG.KEY_LIST[0],
+    keyName: "Test Master Key",
     timeOfIssue: "2026-07-03 09:00",
     issuingOfficer: "Test Officer"
   });

@@ -62,6 +62,91 @@ function parseDtValue(rawProp, rawValue) {
   return { date: `${y}-${mo}-${d}`, time: `${h}:${mi}` };
 }
 
+function addDays(dateStr, days) {
+  const date = new Date(`${dateStr}T12:00:00`);
+  date.setDate(date.getDate() + days);
+  const pad = (v) => String(v).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+const BYDAY_MAP = { SU: 0, MO: 1, TU: 2, WE: 3, TH: 4, FR: 5, SA: 6 };
+
+// Expands an event into the concrete dates it occurs on within a generous
+// horizon. Handles the common school-feed cases: single events, multi-day
+// all-day spans, and RRULE FREQ=DAILY/WEEKLY (INTERVAL, BYDAY, UNTIL, COUNT).
+// MONTHLY/YEARLY repeats fall back to the first date only.
+function occurrenceDates(current) {
+  const startDate = current.start.date;
+  const horizonEnd = addDays(chicagoParts(new Date()).date, WINDOW_DAYS + 1);
+
+  // Multi-day all-day span (DTEND is exclusive per RFC 5545).
+  if (current.start.time === null && current.end && current.end.date > startDate && !current.rrule) {
+    const dates = [];
+    let cursor = startDate;
+    let guard = 0;
+    while (cursor < current.end.date && cursor <= horizonEnd && guard++ < 60) {
+      dates.push(cursor);
+      cursor = addDays(cursor, 1);
+    }
+    return dates.length ? dates : [startDate];
+  }
+
+  if (!current.rrule) return [startDate];
+
+  const rules = {};
+  current.rrule.split(";").forEach((part) => {
+    const [key, value] = part.split("=");
+    if (key && value) rules[key.toUpperCase()] = value.toUpperCase();
+  });
+
+  const freq = rules.FREQ;
+  if (freq !== "DAILY" && freq !== "WEEKLY") return [startDate];
+
+  const interval = Math.max(1, parseInt(rules.INTERVAL || "1", 10) || 1);
+  const count = rules.COUNT ? parseInt(rules.COUNT, 10) : null;
+  let until = null;
+  if (rules.UNTIL) {
+    const match = rules.UNTIL.match(/^(\d{4})(\d{2})(\d{2})/);
+    if (match) until = `${match[1]}-${match[2]}-${match[3]}`;
+  }
+
+  const byDays = rules.BYDAY
+    ? rules.BYDAY.split(",").map((token) => BYDAY_MAP[token.replace(/^[-+]?\d+/, "")]).filter((day) => day !== undefined)
+    : null;
+
+  const dates = [];
+  let produced = 0;
+  let cursor = startDate;
+  let guard = 0;
+
+  while (cursor <= horizonEnd && guard++ < 800) {
+    if (until && cursor > until) break;
+    if (count !== null && produced >= count) break;
+
+    let matches = true;
+    if (freq === "WEEKLY") {
+      const dayOfWeek = new Date(`${cursor}T12:00:00`).getDay();
+      matches = byDays ? byDays.includes(dayOfWeek) : cursor === startDate ||
+        dayOfWeek === new Date(`${startDate}T12:00:00`).getDay();
+      if (interval > 1 && matches) {
+        const weeksApart = Math.floor((new Date(`${cursor}T12:00:00`) - new Date(`${startDate}T12:00:00`)) / (7 * 24 * 3600 * 1000));
+        matches = weeksApart % interval === 0;
+      }
+    } else if (freq === "DAILY" && interval > 1) {
+      const daysApart = Math.round((new Date(`${cursor}T12:00:00`) - new Date(`${startDate}T12:00:00`)) / (24 * 3600 * 1000));
+      matches = daysApart % interval === 0;
+    }
+
+    if (matches) {
+      produced++;
+      dates.push(cursor);
+    }
+    cursor = addDays(cursor, 1);
+  }
+
+  return dates.length ? dates : [startDate];
+}
+
 function parseIcs(text, source) {
   const events = [];
   const lines = unfoldIcs(text).split("\n");
@@ -74,15 +159,17 @@ function parseIcs(text, source) {
     }
     if (line.startsWith("END:VEVENT")) {
       if (current && current.start && current.title) {
-        events.push({
+        const base = {
           source,
           title: current.title,
           location: current.location || "",
-          date: current.start.date,
           time: current.start.time,
           endTime: current.end && current.end.date === current.start.date ? current.end.time : null,
           allDay: current.start.time === null
-        });
+        };
+        for (const date of occurrenceDates(current)) {
+          events.push({ ...base, date });
+        }
       }
       current = null;
       continue;
@@ -103,6 +190,8 @@ function parseIcs(text, source) {
       current.start = parseDtValue(prop, value);
     } else if (propName === "DTEND") {
       current.end = parseDtValue(prop, value);
+    } else if (propName === "RRULE") {
+      current.rrule = value.trim();
     }
   }
 

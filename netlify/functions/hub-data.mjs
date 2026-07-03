@@ -3,27 +3,33 @@
 // Forwards whitelisted actions to Apps Script with the server-side token
 // and stamps the verified officer identity onto every write.
 
-import { json, getBackendConfig, requireOfficer, errorResponse } from "./lib/shared.mjs";
+import { json, getBackendConfig, requireOfficer, isSupervisor, errorResponse } from "./lib/shared.mjs";
 
 const ALLOWED_ACTIONS = new Set([
-  "keyCheckout",
-  "keyReturn",
-  "listOpenKeys",
-  "passdownSubmit",
-  "listPassdown",
-  "boloSubmit",
-  "boloResolve",
-  "listBolos",
+  "keyCheckout", "keyReturn", "listOpenKeys",
+  "eqpCheckout", "eqpReturn", "listOpenEqp", "checkoutNames",
+  "passdownSubmit", "listPassdown",
+  "boloSubmit", "boloResolve", "listBolos",
+  "announceSubmit", "announceExpire", "listAnnouncements",
+  "listFollowUps", "closeFollowUp", "statsSummary",
   "lookupReport"
 ]);
+
+// Command-tier actions: only supervisors may call these.
+const SUPERVISOR_ACTIONS = new Set(["announceSubmit", "announceExpire", "closeFollowUp"]);
 
 // Fields the verified identity overrides on each write action.
 const IDENTITY_FIELDS = {
   keyCheckout: "issuingOfficer",
   keyReturn: "returningOfficer",
+  eqpCheckout: "issuingOfficer",
+  eqpReturn: "returningOfficer",
   passdownSubmit: "officer",
   boloSubmit: "postedBy",
-  boloResolve: "resolvedBy"
+  boloResolve: "resolvedBy",
+  announceSubmit: "postedBy",
+  announceExpire: "removedBy",
+  closeFollowUp: "closedBy"
 };
 
 export default async (request) => {
@@ -43,6 +49,10 @@ export default async (request) => {
     const action = String(body.action || "");
     if (!ALLOWED_ACTIONS.has(action)) {
       return json(400, { ok: false, error: "Unknown action." });
+    }
+
+    if (SUPERVISOR_ACTIONS.has(action) && session.enabled && !isSupervisor(session.officer)) {
+      return json(403, { ok: false, error: "Supervisor access required." });
     }
 
     const payload = { ...body, action, token };
