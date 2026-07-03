@@ -1,0 +1,11 @@
+{
+  "_readme": "EDIT ME — replace every number below with the real contact list. This card shows on the dashboard.",
+  "contacts": [
+    { "label": "KCPD Non-Emergency", "value": "816-234-5111" },
+    { "label": "Security Supervisor", "value": "EDIT: phone" },
+    { "label": "Admin On Call", "value": "EDIT: phone" },
+    { "label": "Facilities", "value": "EDIT: phone" },
+    { "label": "School Nurse — Ward", "value": "EDIT: phone" },
+    { "label": "School Nurse — Wornall", "value": "EDIT: phone" }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "PHS Security Hub",
+  "short_name": "PHS Security",
+  "description": "Pembroke Hill School security operations: dashboard, reporting, key checkouts, gates, and post orders.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d1c2e",
+  "theme_color": "#14273f",
+  "icons": [
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

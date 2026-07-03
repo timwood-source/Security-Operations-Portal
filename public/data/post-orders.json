@@ -1,0 +1,57 @@
+{
+  "_readme": "Manifest for the Post Orders tab. To publish a document: 1) drop the PDF into public/docs/post-orders/, 2) add an entry below with the file name, 3) commit. Entries with \"file\": null render as 'Document pending' placeholder cards.",
+  "sections": [
+    {
+      "code": "PO-01",
+      "title": "Post Orders",
+      "description": "Standing orders for each post, organized by campus.",
+      "groups": [
+        {
+          "campus": "Ward Parkway / Upper Campus",
+          "posts": [
+            { "name": "Ward SOC", "file": null },
+            { "name": "Vehicle Gate Post", "file": null },
+            { "name": "Middle School Driveline", "file": null },
+            { "name": "BAC / Athletics Post", "file": null }
+          ]
+        },
+        {
+          "campus": "Wornall / Lower Campus",
+          "posts": [
+            { "name": "Wornall Security Kiosk", "file": null },
+            { "name": "EC / Intermediate Driveline", "file": null },
+            { "name": "Wornall Main Gate Post", "file": null }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "EP-02",
+      "title": "Event Post Orders",
+      "description": "Orders for specific events: games, performances, ceremonies, and special coverage.",
+      "groups": [
+        {
+          "campus": "All Campuses",
+          "posts": [
+            { "name": "Athletic Events", "file": null },
+            { "name": "Performances / Curry Theater", "file": null },
+            { "name": "Graduation / Ceremonies", "file": null }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "GE-03",
+      "title": "General Expectations",
+      "description": "Department-wide conduct, appearance, communication, and documentation expectations.",
+      "groups": [
+        {
+          "campus": "All Officers",
+          "posts": [
+            { "name": "General Expectations", "file": null }
+          ]
+        }
+      ]
+    }
+  ]
+}

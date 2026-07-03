@@ -1,0 +1,20 @@
+{
+  "name": "phs-security-hub",
+  "version": "3.0.0",
+  "private": true,
+  "description": "Pembroke Hill School Security Hub: dashboard, reporting, key checkouts, gates, and post orders. Netlify front end + functions with a Google Apps Script backend.",
+  "scripts": {
+    "dev": "netlify dev",
+    "check": "node -e \"console.log('Static app. No build step required.')\""
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "netlify-cli": "latest"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^10.0.8",
+    "jose": "^5.9.6"
+  }
+}

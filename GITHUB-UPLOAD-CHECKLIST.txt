@@ -1,0 +1,40 @@
+PHS SECURITY HUB v3 - GITHUB UPLOAD CHECKLIST
+
+Your repo root should show these files/folders:
+
+public/
+netlify/
+google-apps-script/
+docs/
+.github/
+netlify.toml
+package.json
+.gitignore
+.env.example
+README.md
+GITHUB-UPLOAD-CHECKLIST.txt
+
+Do NOT upload a real .env file.
+Do NOT put APPS_SCRIPT_URL, APPS_SCRIPT_TOKEN, Auth0 values, or the
+calendar ICS links in GitHub. Those live ONLY in Netlify env vars.
+
+Netlify settings:
+Build command: leave blank
+Publish directory: public
+Functions directory: netlify/functions
+
+Deployment steps: docs/DEPLOYMENT.md (follow in order).
+
+New in v3:
+- Dashboard: 14-day calendar, weather, gates-now, keys-out, BOLO board,
+  pass-down recap, report lookup, quick contacts
+- PHS-#### / DAR-#### / KEY-#### sequential report numbering
+- Key/Keycard Checkout (KC-03) with return workflow
+- Shift Pass-Down (PD-04)
+- Gates tab + live scheduled-status widget (sample data until real
+  schedules are added to public/data/gates-schedule.json)
+- Post Orders tab (PDF placeholders in public/data/post-orders.json)
+- Officer logins via Auth0 across all pages and APIs
+- Night mode, installable app (PWA), upgraded confirmation screen
+- Chunked 50 MB uploads, streamed downloads
+- 6 AM morning digest email
